@@ -156,10 +156,7 @@ body {
 
 
 /* 3. CONTENEDORES Y GRID (Práctica 1) */
-.main-content {
-    padding-top: 80px; /* Evita que la navbar tape el contenido */
-    min-height: 80vh;
-}
+
 
 .container-custom {
     max-width: 1200px;

@@ -1,0 +1,22 @@
+# Dependencias (esta carpeta pesa mucho y no se sube a GitHub)
+node_modules/
+
+# Logs (archivos de errores del servidor)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Configuración de IDEs (VS Code, etc.)
+.vscode/
+.idea/
+
+# Docker
+.docker/
+
+# Archivos pesados o temporales de vídeo (opcional)
+# Si vuestros vídeos pesan más de 50MB, es mejor no subirlos a Git
+public/assets/*.mp4
