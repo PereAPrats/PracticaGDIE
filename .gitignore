@@ -14,7 +14,10 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Docker
+# --- Docker (Ignorar todo) ---
+Dockerfile
+docker-compose.yml
+.dockerignore
 .docker/
 
 # Archivos pesados o temporales de vídeo (opcional)
