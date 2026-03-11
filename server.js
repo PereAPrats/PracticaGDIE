@@ -6,22 +6,14 @@ const PORT = 80;
 // 1. Configuración de tipos MIME usando un middleware antes de servir los estáticos
 const staticOptions = {
   setHeaders: function (res, filePath) {
-    // Subtítulos (Paso 2)
-    if (filePath.endsWith('.vtt')) {
-      res.setHeader('Content-Type', 'text/vtt');
-    }
-    // Fragmentos de vídeo DASH (Paso 4)
-    if (filePath.endsWith('.m4s')) {
-      res.setHeader('Content-Type', 'video/iso.segment'); 
-    }
-    // Manifiesto DASH (Paso 4)
-    if (filePath.endsWith('.mpd')) {
-      res.setHeader('Content-Type', 'application/dash+xml');
-    }
-    // Metadatos (Paso 3 y 5)
-    if (filePath.endsWith('.json')) {
-      res.setHeader('Content-Type', 'application/json');
-    }
+    // Subtítulos
+    if (filePath.endsWith('.vtt')) res.setHeader('Content-Type', 'text/vtt');
+    // Fragmentos de vídeo DASH
+    if (filePath.endsWith('.m4s')) res.setHeader('Content-Type', 'video/iso.segment'); 
+    // Manifiesto DASH
+    if (filePath.endsWith('.mpd')) res.setHeader('Content-Type', 'application/dash+xml');
+    // Metadatos
+    if (filePath.endsWith('.json')) res.setHeader('Content-Type', 'application/json');
     // Permitir CORS (útil si probáis cosas desde diferentes dominios)
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
