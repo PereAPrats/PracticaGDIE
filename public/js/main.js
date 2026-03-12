@@ -11,8 +11,18 @@ function cargarComponente(id, archivo) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // si estamos dentro de /pages/ necesitamos subir un nivel
-    const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
-    cargarComponente('header-placeholder', prefix + 'partials/header.html');
-    cargarComponente('footer-placeholder', prefix + 'partials/footer.html');
+    let ruta;
+    const path = window.location.pathname;
+    // index.html (o raíz) ahora usa la carpeta pages/partials
+    if (path === '/' || path === '/index.html') {
+        ruta = 'pages/partials/';
+    } else if (path.includes('/pages/')) {
+        // una página dentro de /pages
+        ruta = 'partials/';
+    } else {
+        // caso genérico, por seguridad
+        ruta = 'pages/partials/';
+    }
+    cargarComponente('header-placeholder', ruta + 'header.html');
+    cargarComponente('footer-placeholder', ruta + 'footer.html');
 });
