@@ -11,6 +11,8 @@ function cargarComponente(id, archivo) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    cargarComponente('header-placeholder', 'partials/header.html');
-    cargarComponente('footer-placeholder', 'partials/footer.html');
+    // si estamos dentro de /pages/ necesitamos subir un nivel
+    const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+    cargarComponente('header-placeholder', prefix + 'partials/header.html');
+    cargarComponente('footer-placeholder', prefix + 'partials/footer.html');
 });

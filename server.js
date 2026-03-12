@@ -25,6 +25,5 @@ app.use(express.static(path.join(__dirname, 'public'), staticOptions));
 // Escuchar en 0.0.0.0 para ser accesible desde internet
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- SERVIDOR GDIE DESPLEGADO ---`);
-    console.log(`URL: http://gdie2607.ltim.uib.es`);
-    console.log(`Puerto: ${PORT}`);
+    console.log(`URL: http://localhost:${PORT}`);
 });
