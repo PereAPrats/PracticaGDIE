@@ -1,0 +1,97 @@
+WEBVTT  
+
+1
+00:00:00.000 --> 00:00:02.000
+{ 
+    "Room": "Room 1",
+    "Name": "Proch",
+    "Descripcion": "The image feels like a water-damaged photograph. There is a subtle visual static over a house that doesn't look like a home, but rather a dormant organism under a leaden, featureless sky."
+}
+
+2
+00:00:02.000 --> 00:00:36.000
+{ 
+    "Room": "Room 2",
+    "Name": "Hall",
+    "Descripcion": "The porch floorboards seem to swallow light rather than reflect it. The transition from the flat exterior daylight to the interior gloom is jarring. Piled cardboard boxes look heavy and damp, as if filled with wet sand.Room 3First bedroomA space drenched in ochre. The yellow-patterned bench stands out like a visual bruise against the shadows. Light spills through the window but fails to illuminate; it only highlights dust motes suspended in the air like they are trapped in gelatin.Room 4 - 7Second bedroomThe colors here are "toxic." The cheerleader uniform's yellow has a synthetic glow that feels sharp to the eye. The cracks in the wooden walls appear to branch out like organic capillaries as you stare at them.Room 8ClosetA transition of absolute pitch. There is no perspective of floor or ceiling; it is a visual void that triggers vertigo. It feels as though the camera is drifting through a vacuum of black tar.Room 9First Living roomThe gold leaf on the picture frames has a greasy, tarnished sheen. The glass over the photographs carries an oily reflection that distorts the faces within. The room feels as if it is slowly breathing—expanding and contracting.Room 10Bathroom storageA cramped corner saturated with cheap, sickly artificial light. The objects on the shelves have lost their clear edges, appearing as amorphous lumps under a layer of grime that shimmers like silk.Room 11Living room (final)The focus sharpens harshly on the trunk. The leather is so badly cracked it resembles scar tissue. The iron latch has a cold, hostile glint; you get the sense that touching it would draw blood.Room 12CorridorA tunnel-like sensation. The walls seem to lean inward. There is a peripheral distortion (lens effect) that stretches the hallway, making it feel like a recurring fever dream where the end is never reached.Room 13Second Living roomThe deer head is the sole anchor of the room. Its glass eyes have a watery depth, as if something is looking back. The air looks colder here, rendered in deep blues and heavy shadows behind the furniture.Room 14KitchenA metallic chaos. The cans on the stove are covered in a velvety patina of rust. The bell on the wall reflects light with an unnatural clarity that "cleans" that specific corner of the screen, acting as a hypnotic focal point.Room 15ExitThe visual relief is short-lived. The garden light is flat and lifeless. As the camera retreats, the house becomes a dark blot against the landscape, a silhouette that seems to be sucking the color out of its surroundings."
+}
+
+3
+00:00:36.000 --> 00:01:46.000
+{ 
+    "Room": "Room 3",
+    "Name": "First bedroom",
+    "Descripcion": "A space drenched in ochre. The yellow-patterned bench stands out like a visual bruise against the shadows. Light spills through the window but fails to illuminate; it only highlights dust motes suspended in the air like they are trapped in gelatin."
+}
+
+4
+00:01:46.000 --> 00:02:40.000
+{ 
+    "Room": "Room 4",
+    "Name": "Second bedroom",
+    "Descripcion": "The colors here are "toxic." The cheerleader uniform's yellow has a synthetic glow that feels sharp to the eye. The cracks in the wooden walls appear to branch out like organic capillaries as you stare at them."
+}
+
+5
+00:02:40.000 --> 00:02:58.000
+{ 
+    "Room": "Room 5",
+    "Name": "Closet",
+    "Descripcion": "A transition of absolute pitch. There is no perspective of floor or ceiling; it is a visual void that triggers vertigo. It feels as though the camera is drifting through a vacuum of black tar."
+}
+
+6
+00:02:58.000 --> 00:04:22.000
+{ 
+    "Room": "Room 6",
+    "Name": "First Living room",
+    "Descripcion": "The gold leaf on the picture frames has a greasy, tarnished sheen. The glass over the photographs carries an oily reflection that distorts the faces within. The room feels as if it is slowly breathing—expanding and contracting."
+}
+
+7
+00:04:22.000 --> 00:04:40.000
+{ 
+    "Room": "Room 7",
+    "Name": "Bathroom storage",
+    "Descripcion": "A cramped corner saturated with cheap, sickly artificial light. The objects on the shelves have lost their clear edges, appearing as amorphous lumps under a layer of grime that shimmers like silk."
+}
+
+8
+00:04:40.000 --> 00:06:24.000
+{ 
+    "Room": "Room 6",
+    "Name": "First Living room ",
+    "Descripcion": "The focus sharpens harshly on the trunk. The leather is so badly cracked it resembles scar tissue. The iron latch has a cold, hostile glint; you get the sense that touching it would draw blood."
+}
+
+9
+00:06:24.000 --> 00:07:26.000
+{ 
+    "Room": "Room 8",
+    "Name": "Corridor",
+    "Descripcion": "A tunnel-like sensation. The walls seem to lean inward. There is a peripheral distortion (lens effect) that stretches the hallway, making it feel like a recurring fever dream where the end is never reached."
+}
+
+10
+00:07:26.000 --> 00:08:52.000
+{ 
+    "Room": "Room 10",
+    "Name": "Second Living room",
+    "Descripcion": "The deer head is the sole anchor of the room. Its glass eyes have a watery depth, as if something is looking back. The air looks colder here, rendered in deep blues and heavy shadows behind the furniture."
+}
+
+11
+00:08:52.000 --> 00:09:42.000
+{ 
+    "Room": "Room 11",
+    "Name": "Kitchen",
+    "Descripcion": "A metallic chaos. The cans on the stove are covered in a velvety patina of rust. The bell on the wall reflects light with an unnatural clarity that "cleans" that specific corner of the screen, acting as a hypnotic focal point."
+}
+
+12
+00:09:42.000 --> 00:09:52.000
+{ 
+    "Room": "Room 12",
+    "Name": "Exit",
+    "Descripcion": "The visual relief is short-lived. The garden light is flat and lifeless. As the camera retreats, the house becomes a dark blot against the landscape, a silhouette that seems to be sucking the color out of its surroundings."
+}
