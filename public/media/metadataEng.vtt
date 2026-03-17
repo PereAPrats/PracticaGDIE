@@ -75,7 +75,7 @@ WEBVTT
 10
 00:07:26.000 --> 00:08:52.000
 { 
-    "Room": "Room 10",
+    "Room": "Room 9",
     "Name": "Second Living room",
     "Descripcion": "The deer head is the sole anchor of the room. Its glass eyes have a watery depth, as if something is looking back. The air looks colder here, rendered in deep blues and heavy shadows behind the furniture."
 }
@@ -83,7 +83,7 @@ WEBVTT
 11
 00:08:52.000 --> 00:09:42.000
 { 
-    "Room": "Room 11",
+    "Room": "Room 10",
     "Name": "Kitchen",
     "Descripcion": "A metallic chaos. The cans on the stove are covered in a velvety patina of rust. The bell on the wall reflects light with an unnatural clarity that "cleans" that specific corner of the screen, acting as a hypnotic focal point."
 }
@@ -91,7 +91,7 @@ WEBVTT
 12
 00:09:42.000 --> 00:09:52.000
 { 
-    "Room": "Room 12",
+    "Room": "Room 11",
     "Name": "Exit",
     "Descripcion": "The visual relief is short-lived. The garden light is flat and lifeless. As the camera retreats, the house becomes a dark blot against the landscape, a silhouette that seems to be sucking the color out of its surroundings."
 }

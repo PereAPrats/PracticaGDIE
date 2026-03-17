@@ -1,0 +1,97 @@
+WEBVTT  
+
+1
+00:00:00.000 --> 00:00:02.000
+{ 
+    "Room": "Room 1",
+    "Name": "Porche",
+    "Descripcion": "La imagen se siente como una fotografía dañada por agua. Hay un sutil ruido visual estático sobre una casa que no parece un hogar, sino más bien un organismo dormido bajo un cielo plomizo y sin rasgos distintivos."
+}
+
+2
+00:00:02.000 --> 00:00:36.000
+{ 
+    "Room": "Room 2",
+    "Name": "Recibidor",
+    "Descripcion": "Las tablas del porche parecen tragarse la luz en lugar de reflejarla. La transición de la luz del día exterior plana a la penumbra interior es desconcertante. Las cajas de cartón apiladas parecen pesadas y húmedas, como si estuvieran llenas de arena mojada. Cuarto 3 — Primer dormitorioUn espacio teñido de ocre. El banco de patrón amarillo destaca como un hematoma visual entre las sombras. La luz se derrama por la ventana pero no ilumina; solo resalta motas de polvo suspendidas en el aire como si estuvieran atrapadas en gelatina. Cuarto 4-7 — Segundo dormitorioLos colores aquí son "tóxicos". El amarillo del uniforme de animadora tiene un brillo sintético que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares orgánicos a medida que las observas. Cuarto 8 — ClosetUna transición de oscuridad absoluta. No hay perspectiva de suelo ni techo; es un vacío visual que provoca vértigo. Parece como si la cámara se deslizara a través de un vacío de brea negra. Cuarto 9 — Primer salónLa hoja de oro de los marcos de las fotografías tiene un brillo grasiento y oxidado. El cristal sobre las fotografías lleva un reflejo aceitoso que distorsiona los rostros dentro. La sala parece estar respirando lentamente—expandiéndose y contrayéndose. Cuarto 10 — Almacenaje del bañoUna esquina abarrotada saturada de luz artificial barata y enfermiza. Los objetos en los estantes han perdido sus bordes definidos, apareciendo como masas amorfas bajo una capa de suciedad que brilla como seda. Cuarto 11 — Salón (final)El enfoque se afila bruscamente sobre el baúl. El cuero está tan agrietado que parece tejido cicatricial. El cierre de hierro tiene un destello frío y hostil; tienes la sensación de que tocarlo te haría sangrar. Cuarto 12 — PasilloUna sensación de túnel. Las paredes parecen inclinarse hacia adentro. Hay una distorsión periférica (efecto de lente) que estira el pasillo, haciéndolo sentir como un sueño febril recurrente donde el final nunca se alcanza. Cuarto 13 — Segundo salónLa cabeza del ciervo es el único ancla de la habitación. Sus ojos de cristal tienen una profundidad acuosa, como si algo estuviera mirando hacia atrás. El aire se ve más frío aquí, representado en azules profundos y sombras pesadas detrás de los muebles. Cuarto 14 — CocinaUN caos metálico. Las latas en la estufa están cubiertas con una pátina aterciopelada de herrumbre. La campana en la pared refleja la luz con una claridad antinatural que "limpia" esa esquina específica de la pantalla, actuando como un punto focal hipnótico. Cuarto 15 — SalidaEl alivio visual es efímero. La luz del jardín es plana y sin vida. Cuando la cámara se retira, la casa se convierte en una mancha oscura en el paisaje, una silueta que parece estar succionando el color de sus alrededores."
+}
+
+3
+00:00:36.000 --> 00:01:46.000
+{ 
+    "Room": "Room 3",
+    "Name": "Primer dormitorio",
+    "Descripcion": "Un espacio teñido de ocre. El banco de patrón amarillo destaca como un hematoma visual entre las sombras. La luz se derrama por la ventana pero no ilumina; solo resalta motas de polvo suspendidas en el aire como si estuvieran atrapadas en gelatina."
+}
+
+4
+00:01:46.000 --> 00:02:40.000
+{ 
+    "Room": "Room 4",
+    "Name": "Segunda habitación",
+    "Descripcion": "Los colores aquí son "tóxicos". El amarillo del uniforme de animadora tiene un brillo sintético que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares orgánicos a medida que las observas."
+}
+
+5
+00:02:40.000 --> 00:02:58.000
+{ 
+    "Room": "Room 5",
+    "Name": "Armario",
+    "Descripcion": "Una transición de oscuridad absoluta. No hay perspectiva de suelo ni techo; es un vacío visual que provoca vértigo. Parece como si la cámara se deslizara a través de un vacío de brea negra."
+}
+
+6
+00:02:58.000 --> 00:04:22.000
+{ 
+    "Room": "Room 6",
+    "Name": "Primer salón",
+    "Descripcion": "La hoja de oro de los marcos tiene un brillo grasiento y oxidado. El cristal sobre las fotografías lleva un reflejo aceitoso que distorsiona los rostros dentro. La sala parece estar respirando lentamente—expandiéndose y contrayéndose."
+}
+
+7
+00:04:22.000 --> 00:04:40.000
+{ 
+    "Room": "Room 7",
+    "Name": "Almacenamiento del baño",
+    "Descripcion": "Una esquina abarrotada saturada de luz artificial barata y enfermiza. Los objetos en los estantes han perdido sus bordes nítidos, apareciendo como masas amorfas bajo una capa de suciedad que brilla como seda."
+}
+
+8
+00:04:40.000 --> 00:06:24.000
+{ 
+    "Room": "Room 6",
+    "Name": "Primer salón",
+    "Descripcion": "El enfoque se afila bruscamente sobre el baúl. El cuero está tan agrietado que parece tejido cicatricial. El cierre de hierro tiene un destello frío y hostil; tienes la sensación de que tocarlo te haría sangrar."
+}
+
+9
+00:06:24.000 --> 00:07:26.000
+{ 
+    "Room": "Room 8",
+    "Name": "Pasillo",
+    "Descripcion": "Una sensación de túnel. Las paredes parecen inclinarse hacia adentro. Hay una distorsión periférica (efecto de lente) que estira el pasillo, haciéndolo sentir como un sueño febril recurrente donde el final nunca se alcanza."
+}
+
+10
+00:07:26.000 --> 00:08:52.000
+{ 
+    "Room": "Room 9",
+    "Name": "Segundo salón",
+    "Descripcion": "La cabeza del ciervo es el único ancla de la habitación. Sus ojos de cristal tienen una profundidad acuosa, como si algo estuviera mirando hacia atrás. El aire se ve más frío aquí, representado en azules profundos y sombras pesadas."
+}
+
+11
+00:08:52.000 --> 00:09:42.000
+{ 
+    "Room": "Room 10",
+    "Name": "Cocina",
+    "Descripcion": "Un caos metálico. Las latas en la estufa están cubiertas con una pátina aterciopelada de herrumbre. La campana en la pared refleja la luz con una claridad antinatural que "limpia" esa esquina específica de la pantalla, actuando como un punto focal hipnótico."
+}
+
+12
+00:09:42.000 --> 00:09:52.000
+{ 
+    "Room": "Room 11",
+    "Name": "Salida",
+    "Descripcion": "El alivio visual es efímero. La luz del jardín es plana y sin vida. Cuando la cámara se retira, la casa se convierte en una mancha oscura en el paisaje, una silueta que parece estar succionando el color de sus alrededores."
+}
