@@ -20,9 +20,8 @@ docker-compose.yml
 .dockerignore
 .docker/
 
-# Archivos pesados o temporales de vídeo (opcional)
-# Si vuestros vídeos pesan más de 50MB, es mejor no subirlos a Git
-public/assets/*.mp4
+# Archivos pesados o temporales de vídeo
+public/assets/videos/*
 
 # Archivos de configuración local
 .env
