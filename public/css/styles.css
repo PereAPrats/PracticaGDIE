@@ -4,7 +4,7 @@
     --verde-oscuro: #1B3022;
     --marron-oscuro: #3E2723;
     --blanco-suave: #ffffff;
-    --lila-texto: #a65ba6;
+    --lila-texto: #174727;
 }
 
 * {
@@ -186,7 +186,6 @@ body {
     font-weight: bold;
     font-size: 1.5rem;
     border-radius: 5px;
-    text-transform: lowercase;
 }
 
 /* Alturas proporcionales basadas en tu dibujo */
@@ -435,7 +434,32 @@ body {
     border-radius: 4px;
 }
 
-[inkscape\:label] {
-            transition: fill 0.5s ease;
-            cursor: pointer;
-        }
+/* Asegura que el overlay cubra exactamente el video */
+.video-player {
+    position: relative;
+    overflow: hidden;
+}
+
+#videoOverlay {
+    display: none; /* Se activa desde JS */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(45, 90, 39, 0.95); /* Verde oscuro semi-transparente */
+    z-index: 100;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
+
+.btn-quiz {
+    transition: transform 0.2s;
+}
+
+.btn-quiz:hover {
+    transform: scale(1.1);
+    background-color: #eee;
+}
