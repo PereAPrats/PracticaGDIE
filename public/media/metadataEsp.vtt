@@ -24,15 +24,20 @@ WEBVTT
     "Descripcion": "Un espacio teñido de ocre. El banco de patrón amarillo destaca como un hematoma visual entre las sombras. La luz se derrama por la ventana pero no ilumina; solo resalta motas de polvo suspendidas en el aire como si estuvieran atrapadas en gelatina."
 }
 
-4
 00:01:46.000 --> 00:02:40.000
 { 
     "Room": "Room 4",
     "Name": "Segunda habitación",
-    "Descripcion": "Los colores aquí son "tóxicos". El amarillo del uniforme de animadora tiene un brillo sintético que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares orgánicos a medida que las observas."
+    "Descripcion": "Los colores aquí son "tóxicos". El amarillo del uniforme de animadora tiene un brillo sintético que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares orgánicos a medida que las observas.",
+    "quizz_pool": [
+            {
+            "pregunta": "¿?",
+            "opciones": ["A", "B", "C"],
+            "correcta": 0
+            }
+        ]
 }
 
-5
 00:02:40.000 --> 00:02:58.000
 { 
     "Room": "Room 5",
