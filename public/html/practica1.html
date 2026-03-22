@@ -15,7 +15,79 @@
             
             <div class="row">
             <div class="col-6">
-                <div class="grid-item item-video">video</div>
+                <div class="grid-item item-video">
+
+                    <div class="video-player">
+
+                        <video id="videoPlayer">
+                            <source src="../assets/video/mp4/Video_4k.mp4" type="video/mp4">
+                            <track id="trackEs" src="../media/subtitlesEsp.vtt" kind="subtitles" srclang="es" label="Español">
+                            <!--track id="trackEn" src="../media/subtitlesEng.vtt" kind="subtitles" srclang="en" label="English"-->
+                            <!--track id="metadataTrack" src="../media/metadataEsp.vtt" kind="metadata" label="Metadatos" default-->                        
+                        </video>
+
+                        <!-- Reutilizamos el div de status para mostrar errores de carga de VTT -->
+                        <div id="videoStatus" class="status"></div>
+
+                        <!-- CONTROLES SOBRE EL VIDEO -->
+                        <div class="video-controls">
+
+                            <div class="progress-container">
+                                <input type="range" id="progress" value="0" min="0" step="0.1">
+                            </div>
+
+                            <div class="controls-row">
+
+                                <div class="left-controls">
+                                    <button id="playPause">
+                                        <img src="../assets/img/play.svg" id="playIcon" class="control-icon" alt="Play">
+                                    </button>
+                                    <button id="back10">
+                                        <img src="../assets/img/back.svg" class="control-icon" alt="Atrás 10s">
+                                    </button>
+                                    <button id="forward10">
+                                        <img src="../assets/img/forward.svg" class="control-icon" alt="Adelante 10s">
+                                    </button>
+                                    <span id="time">0:00 / 0:00</span>
+                                </div>
+
+                                <div class="right-controls">
+                                    <select id="subtitles">
+                                        <option value="off">Sub OFF</option>
+                                        <option value="es">ES</option>
+                                        <option value="en">EN</option>
+                                    </select>
+
+                                    <select id="audio">
+                                        <option value="off">Audio OFF</option>
+                                        <option value="es">ES</option>
+                                        <option value="en">EN</option>
+                                    </select>
+
+                                    <select id="speed">
+                                        <option value="0.5">0.5x</option>
+                                        <option value="1" selected>1x</option>
+                                        <option value="1.5">1.5x</option>
+                                        <option value="2">2x</option>
+                                    </select>
+
+                                    <button id="mute">
+                                        <img src="../assets/img/volume.svg" id="muteIcon" class="control-icon" alt="Mute">
+                                    </button>
+                                    <button id="fullscreen">
+                                        <img src="../assets/img/expand.svg" id="fsIcon" class="control-icon" alt="Fullscreen">
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div id="videoStatus" class="status"></div>
+
+                    </div>
+
+                </div>
                 <div class="grid-item item-texto">texto</div>
             </div>
 
@@ -37,5 +109,7 @@
 
     <div id="footer-placeholder"></div>
     <script src="../js/main.js"></script>
+    <script src="../js/player.js"></script>
+    <script src="../js/semantic.js"></script>
 </body>
 </html>
