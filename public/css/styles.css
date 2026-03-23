@@ -145,8 +145,16 @@ body {
   display: block; /* Elimina un pequeño espacio en blanco debajo de la imagen */
 }
 
-.card h3, .card p {
+.card h3{
   padding: 0 15px; /* Añade espacio a los lados del texto */
+}
+
+.card p {
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--marron-oscuro); /* El color que definiste en tus variables[cite: 1] */
+    padding: 10px 20px;
 }
 
 /* --- AJUSTE PARA LA P1 (Para que la barra no tape el dibujo) --- */
@@ -189,8 +197,8 @@ body {
 }
 
 /* Alturas proporcionales basadas en tu dibujo */
-.item-video { height: 40vh; }
-.item-texto  { height: 40vh; }
+.item-video { height: 60vh; }
+.item-texto  { height: 20vh; }
 .item-nombre { height: 12vh; }
 .item-mapa  { height: 68vh; }
 .item-capitulos { height: 82vh; } /* Suma visual para alinear */
@@ -219,6 +227,7 @@ body {
 }
 
 .hero-content h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+.equipo-header h2 { font-size: 2.5rem; margin-bottom: 1rem; }
 
 .equipo-section {
     padding: 100px 10%;
@@ -463,3 +472,26 @@ body {
     transform: scale(1.1);
     background-color: #eee;
 }
+
+/* --- ESTILO PARA EL LOGO EN LA NAVBAR --- */
+/* Estilo para el icono del menú */
+.nav-icon {
+    height: 35px;         /* Ajusta este valor según prefieras el grosor de tu navbar */
+    width: auto;          /* Mantiene la proporción redonda */
+    border-radius: 50%;   /* Refuerza la forma circular */
+    display: block;       /* Evita espacios extraños debajo de la imagen */
+    transition: transform 0.3s ease; /* Para que al pasar el ratón haga algo chulo */
+}
+
+/* Efecto al pasar el ratón por encima del logo */
+.nav-icon:hover {
+    transform: scale(1.1); /* Se agranda un poquito */
+}
+
+/* Alineación del contenedor del logo */
+.logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
