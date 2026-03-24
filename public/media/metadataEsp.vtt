@@ -142,7 +142,7 @@
     {
       "pregunta": "Que quieres abrir?",
       "opciones": [
-        { "texto": "Solo el cajon", "accion": "contniue" },
+        { "texto": "Solo el cajon", "accion": "continue" },
         { "texto": "Solo el estante", "accion": "goto", "destino": "00:02:16.000" },
         { "texto": "Ambos", "accion": "continue" },
         { "texto": "Nada", "accion": "goto", "destino": "00:02:38.000" }
