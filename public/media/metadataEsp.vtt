@@ -1,97 +1,683 @@
-WEBVTT  
+﻿WEBVTT
 
 00:00:00.000 --> 00:00:02.000
 {
-    "Room": "Room1",
-    "Name": "Porche",
-    "Descripcion": "La imagen se siente como una fotografía dañada por agua. Hay un sutil ruido visual estático sobre una casa que no parece un hogar, sino más bien un organismo dormido bajo un cielo plomizo y sin rasgos distintivos.",
-    "quiz_pool": [{"pregunta": "¿Quieres entrar?", "opciones": ["Si", "No"], "correcta": 0}]
+  "Room": "Room1",
+  "Name": "Porche",
+  "Descripcion": "La imagen se siente como una fotografia danada por agua. Hay un sutil ruido visual estatico sobre una casa que no parece un hogar, sino mas bien un organismo dormido bajo un cielo plomizo y sin rasgos distintivos.",
+  "quiz_pool": [
+    {
+      "pregunta": "Quieres entrar?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "goto", "destino": "00:09:44.000" }
+      ]
+    }
+  ]
 }
 
 00:00:02.000 --> 00:00:36.000
-{ 
-    "Room": "Room2",
-    "Name": "Recibidor",
-    "Descripcion": "Las tablas del porche parecen tragarse la luz en lugar de reflejarla. La transición de la luz del día exterior plana a la penumbra interior es desconcertante. Las cajas de cartón apiladas parecen pesadas y húmedas, como si estuvieran llenas de arena mojada.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room2",
+  "Name": "Recibidor",
+  "Descripcion": "Las tablas del porche parecen tragarse la luz en lugar de reflejarla. La transicion de la luz del dia exterior plana a la penumbra interior es desconcertante. Las cajas de carton apiladas parecen pesadas y humedas, como si estuvieran llenas de arena mojada.",
+  "quiz_pool": [
+    {
+      "pregunta": "Que hay debajo del colchon que tiene rombos amarillos?",
+      "opciones": [
+        { "texto": "Billetes de viaje", "accion": "repeat" },
+        { "texto": "Hojas judiciales", "accion": "repeat" },
+        { "texto": "Nada", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Que no hay encima de la chimenea?",
+      "opciones": [
+        { "texto": "Reloj", "accion": "repeat" },
+        { "texto": "Tetera de vidreo", "accion": "continue" },
+        { "texto": "Cuadro", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas lamparas cuelgan del techo?",
+      "opciones": [
+        { "texto": "Una", "accion": "repeat" },
+        { "texto": "Dos", "accion": "repeat" },
+        { "texto": "Ninguna", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna impresora?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna television?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun botellero de bola del mundo?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas lamparas de pie hay?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Que nombre tiene la revista encima de las impresoras?",
+      "opciones": [
+        { "texto": "Masonry", "accion": "continue" },
+        { "texto": "", "accion": "repeat" },
+        { "texto": "No hay revista", "accion": "repeat" }
+      ]
+    }
+  ]
 }
 
 00:00:36.000 --> 00:01:46.000
-{ 
-    "Room": "Room3",
-    "Name": "Primer dormitorio",
-    "Descripcion": "Un espacio teñido de ocre. El banco de patrón amarillo destaca como un hematoma visual entre las sombras. La luz se derrama por la ventana pero no ilumina; solo resalta motas de polvo suspendidas en el aire como si estuvieran atrapadas en gelatina.",
-    "quiz_pool": [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room3",
+  "Name": "Primer dormitorio",
+  "Descripcion": "Un espacio tenido de ocre. El banco de patron amarillo destaca como un hematoma visual entre las sombras. La luz se derrama por la ventana pero no ilumina; solo resalta motas de polvo suspendidas en el aire como si estuvieran atrapadas en gelatina.",
+  "quiz_pool": [
+    {
+      "pregunta": "Hay alguna lampara de arana?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "De que equipo es el traje de animadora?",
+      "opciones": [
+        { "texto": "", "accion": "repeat" },
+        { "texto": "TIGERS", "accion": "continue" },
+        { "texto": "", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que hay encima del tocador?",
+      "opciones": [
+        { "texto": "Flecha de madera", "accion": "continue" },
+        { "texto": "Bote de colonia antigua", "accion": "repeat" },
+        { "texto": "Cartas antiguas", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que hay encima de la chimenea?",
+      "opciones": [
+        { "texto": "Nino bailando", "accion": "continue" },
+        { "texto": "Camion de madera", "accion": "repeat" },
+        { "texto": "Cuchillo oxidado", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Tiene interruptor de luz?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    }
+  ]
 }
 
-00:01:46.000 --> 00:02:40.000
-{ 
-    "Room": "Room4",
-    "Name": "Segunda habitación",
-    "Descripcion": "Los colores aquí son 'tóxicos'. El amarillo del uniforme de animadora tiene un brillo sintético que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares orgánicos a medida que las observas.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+00:01:46.000 --> 00:02:02.000
+{
+  "Room": "Room4",
+  "Name": "Segunda habitacion",
+  "Descripcion": "Los colores aqui son toxicos. El amarillo del uniforme de animadora tiene un brillo sintetico que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares organicos a medida que las observas.",
+  "quiz_pool": [
+    {
+      "pregunta": "Que quieres abrir?",
+      "opciones": [
+        { "texto": "Solo el cajon", "accion": "contniue" },
+        { "texto": "Solo el estante", "accion": "goto", "destino": "00:02:16.000" },
+        { "texto": "Ambos", "accion": "continue" },
+        { "texto": "Nada", "accion": "goto", "destino": "00:02:38.000" }
+      ]
+    }
+  ]
+}
+
+00:02:02.000 --> 00:02:16.000
+{
+  "Room": "Room4",
+  "Name": "Segunda habitacion",
+  "Descripcion": "Los colores aqui son toxicos. El amarillo del uniforme de animadora tiene un brillo sintetico que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares organicos a medida que las observas.",
+  "quiz_pool": []
+}
+
+00:02:16.000 --> 00:02:38.000
+{
+  "Room": "Room4",
+  "Name": "Segunda habitacion",
+  "Descripcion": "Los colores aqui son toxicos. El amarillo del uniforme de animadora tiene un brillo sintetico que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares organicos a medida que las observas.",
+  "quiz_pool": []
+}
+
+00:02:38.000 --> 00:02:40.000
+{
+  "Room": "Room4",
+  "Name": "Segunda habitacion",
+  "Descripcion": "Los colores aqui son toxicos. El amarillo del uniforme de animadora tiene un brillo sintetico que hiere la vista. Las grietas en las paredes de madera parecen ramificarse como capilares organicos a medida que las observas.",
+  "quiz_pool": [
+    {
+      "pregunta": "Sobre que esta el sillon de la entrada?",
+      "opciones": [
+        { "texto": "Sobre otro sillon", "accion": "repeat" },
+        { "texto": "Sobre una mesa", "accion": "continue" },
+        { "texto": "Sobre cajas", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "De que trata el cuadro encima de la chimenea?",
+      "opciones": [
+        { "texto": "Un paisaje", "accion": "repeat" },
+        { "texto": "Autoretrato de un hombre", "accion": "continue" },
+        { "texto": "Un bodegon", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas ventanas tiene?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Que hay dentro de la estanteria?",
+      "opciones": [
+        { "texto": "Bolsos", "accion": "repeat" },
+        { "texto": "Tabaco", "accion": "repeat" },
+        { "texto": "Medicamentos", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun pasaporte dentro del cajon?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun paquete de tabaco dentro del cajon?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna lampara de arana?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    }
+  ]
 }
 
 00:02:40.000 --> 00:02:58.000
-{ 
-    "Room": "Room5",
-    "Name": "Armario",
-    "Descripcion": "Una transición de oscuridad absoluta. No hay perspectiva de suelo ni techo; es un vacío visual que provoca vértigo. Parece como si la cámara se deslizara a través de un vacío de brea negra.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room5",
+  "Name": "Armario",
+  "Descripcion": "Una transicion de oscuridad absoluta. No hay perspectiva de suelo ni techo; es un vacio visual que provoca vertigo. Parece como si la camara se deslizara a traves de un vacio de brea negra.",
+  "quiz_pool": [
+    {
+      "pregunta": "Que hay en la parte superior?",
+      "opciones": [
+        { "texto": "Un carrito antiguo", "accion": "continue" },
+        { "texto": "Un baul misterioso", "accion": "repeat" },
+        { "texto": "Cajas de mudanza", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "La habitacion tiene luz?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas perchas tiene colgadas?",
+      "opciones": [
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" },
+        { "texto": "3", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna bolsa?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "El suelo ...?",
+      "opciones": [
+        { "texto": "Esta lleno de periodicos", "accion": "continue" },
+        { "texto": "Esta lleno de cajas", "accion": "repeat" },
+        { "texto": "Tiene cristales rotos", "accion": "repeat" }
+      ]
+    }
+  ]
 }
 
 00:02:58.000 --> 00:04:22.000
-{ 
-    "Room": "Room6",
-    "Name": "Primer salón",
-    "Descripcion": "La hoja de oro de los marcos tiene un brillo grasiento y oxidado. El cristal sobre las fotografías lleva un reflejo aceitoso que distorsiona los rostros dentro. La sala parece estar respirando lentamente—expandiéndose y contrayéndose.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room6",
+  "Name": "Primer salon",
+  "Descripcion": "La hoja de oro de los marcos tiene un brillo grasiento y oxidado. El cristal sobre las fotografias lleva un reflejo aceitoso que distorsiona los rostros dentro. La sala parece estar respirando lentamente, expandiendose y contrayendose.",
+  "quiz_pool": [
+    {
+      "pregunta": "Quieres entrar?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "goto", "destino": "00:04:40.000" }
+      ]
+    }
+  ]
 }
 
 00:04:22.000 --> 00:04:40.000
-{ 
-    "Room": "Room7",
-    "Name": "Almacenamiento del baño",
-    "Descripcion": "Una esquina abarrotada saturada de luz artificial barata y enfermiza. Los objetos en los estantes han perdido sus bordes nítidos, apareciendo como masas amorfas bajo una capa de suciedad que brilla como seda.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room7",
+  "Name": "Almacenamiento del bano",
+  "Descripcion": "Una esquina abarrotada saturada de luz artificial barata y enfermiza. Los objetos en los estantes han perdido sus bordes nitidos, apareciendo como masas amorfas bajo una capa de suciedad que brilla como seda.",
+  "quiz_pool": [
+    {
+      "pregunta": "Hay algun retrete?",
+      "opciones": [
+        { "texto": "Si, tirado en el suelo", "accion": "repeat" },
+        { "texto": "No se puede ver", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay suelo?",
+      "opciones": [
+        { "texto": "Si, con revistas en el suelo", "accion": "continue" },
+        { "texto": "No, esta a trozos", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun altavoz?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun baul?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que no hay?",
+      "opciones": [
+        { "texto": "Altavoz", "accion": "repeat" },
+        { "texto": "Carrito de compra", "accion": "continue" },
+        { "texto": "Puerta", "accion": "repeat" }
+      ]
+    }
+  ]
 }
 
 00:04:40.000 --> 00:06:24.000
-{ 
-    "Room": "Room6",
-    "Name": "Primer salón",
-    "Descripcion": "El enfoque se afila bruscamente sobre el baúl. El cuero está tan agrietado que parece tejido cicatricial. El cierre de hierro tiene un destello frío y hostil; tienes la sensación de que tocarlo te haría sangrar.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room6",
+  "Name": "Primer salon",
+  "Descripcion": "El enfoque se afila bruscamente sobre el baul. El cuero esta tan agrietado que parece tejido cicatricial. El cierre de hierro tiene un destello frio y hostil; tienes la sensacion de que tocarlo te haria sangrar.",
+  "quiz_pool": [
+    {
+      "pregunta": "Que no hay en la habitacion?",
+      "opciones": [
+        { "texto": "Un andador", "accion": "repeat" },
+        { "texto": "Muletas", "accion": "repeat" },
+        { "texto": "Una silla de ruedas", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cual es el titulo del libro que abre?",
+      "opciones": [
+        { "texto": "", "accion": "repeat" },
+        { "texto": "The Confederacy", "accion": "continue" },
+        { "texto": "", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas katanas hay?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "De que marca de alcohol hay una caja?",
+      "opciones": [
+        { "texto": "Red Label", "accion": "repeat" },
+        { "texto": "Jack Daniel's", "accion": "continue" },
+        { "texto": "Absolut Vodka", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun vinilo?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantos colchones hay?",
+      "opciones": [
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "repeat" },
+        { "texto": "3", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna lampara de arana?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "En la habitacion externa como estaba el suelo?",
+      "opciones": [
+        { "texto": "Lleno de cajas", "accion": "continue" },
+        { "texto": "Con periodicos tirados", "accion": "repeat" },
+        { "texto": "Roto por el paso del tiempo", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay ducha?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Habia alguna escalera en el armario con bano?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Habia alguna escalera?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas lamparas de pie hay en el centro?",
+      "opciones": [
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" },
+        { "texto": "3", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna chimenea?",
+      "opciones": [
+        { "texto": "Si, pero tapada con ladrillo", "accion": "repeat" },
+        { "texto": "No se ha visto ninguna", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cuantos cajones abre?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "mas 2", "accion": "continue" }
+      ]
+    }
+  ]
 }
 
 00:06:24.000 --> 00:07:26.000
-{ 
-    "Room": "Room8",
-    "Name": "Pasillo",
-    "Descripcion": "Una sensación de túnel. Las paredes parecen inclinarse hacia adentro. Hay una distorsión periférica (efecto de lente) que estira el pasillo, haciéndolo sentir como un sueño febril recurrente donde el final nunca se alcanza.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room8",
+  "Name": "Pasillo",
+  "Descripcion": "Una sensacion de tunel. Las paredes parecen inclinarse hacia adentro. Hay una distorsion periferica (efecto de lente) que estira el pasillo, haciendolo sentir como un sueno febril recurrente donde el final nunca se alcanza.",
+  "quiz_pool": [
+    {
+      "pregunta": "Hay alguna escalera?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que no hay encima de la estanteria?",
+      "opciones": [
+        { "texto": "Un espejo", "accion": "repeat" },
+        { "texto": "Palitos con pelo", "accion": "repeat" },
+        { "texto": "Toallitas de bebe", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas personas salen en el cuadro de la pared encima de la estanteria?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun cuadro con un perro?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun cuadro con un gato?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cuando fue la boda?",
+      "opciones": [
+        { "texto": "Octubre de 1969", "accion": "continue" },
+        { "texto": "Enero de 1972", "accion": "repeat" },
+        { "texto": "Mayo de 1954", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Donde fue la boda?",
+      "opciones": [
+        { "texto": "Arizona", "accion": "repeat" },
+        { "texto": "Alaska", "accion": "repeat" },
+        { "texto": "Alabama", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Quien se caso?",
+      "opciones": [
+        { "texto": "Isabel & Maxime", "accion": "repeat" },
+        { "texto": "Sharon & Gregory", "accion": "continue" },
+        { "texto": "Anne & Gilbert", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "De que trata el cuadro que hay dentro del cajon de la estanteria?",
+      "opciones": [
+        { "texto": "Un bodegon de jarrones", "accion": "repeat" },
+        { "texto": "Paisaje de la playa", "accion": "repeat" },
+        { "texto": "Autoretrato de la novia", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Cuantos cajones abre?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "continue" },
+        { "texto": "2", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Caracteristica de las sillas?",
+      "opciones": [
+        { "texto": "No tienen respaldo", "accion": "repeat" },
+        { "texto": "Tienen un hueco", "accion": "continue" },
+        { "texto": "Nada son solo antiguas", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que hay encima del piano?",
+      "opciones": [
+        { "texto": "Botellas", "accion": "continue" },
+        { "texto": "Lamparas", "accion": "repeat" },
+        { "texto": "Cuadros", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Que instrumento musical hay?",
+      "opciones": [
+        { "texto": "Guitarra", "accion": "repeat" },
+        { "texto": "Trompa", "accion": "repeat" },
+        { "texto": "Piano", "accion": "continue" }
+      ]
+    }
+  ]
 }
 
 00:07:26.000 --> 00:08:52.000
-{ 
-    "Room": "Room9",
-    "Name": "Segundo salón",
-    "Descripcion": "La cabeza del ciervo es el único ancla de la habitación. Sus ojos de cristal tienen una profundidad acuosa, como si algo estuviera mirando hacia atrás. El aire se ve más frío aquí, representado en azules profundos y sombras pesadas.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room9",
+  "Name": "Segundo salon",
+  "Descripcion": "La cabeza del ciervo es el unico ancla de la habitacion. Sus ojos de cristal tienen una profundidad acuosa, como si algo estuviera mirando hacia atras. El aire se ve mas frio aqui, representado en azules profundos y sombras pesadas.",
+  "quiz_pool": [
+    {
+      "pregunta": "Hay alguna chimenea?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna CocaCola?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna cabeza de toro?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun animal?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Cuantas estanterias hay?",
+      "opciones": [
+        { "texto": "0", "accion": "repeat" },
+        { "texto": "1", "accion": "repeat" },
+        { "texto": "2", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun sofa?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    }
+  ]
 }
 
 00:08:52.000 --> 00:09:42.000
-{ 
-    "Room": "Room10",
-    "Name": "Cocina",
-    "Descripcion": "Un caos metálico. Las latas en la estufa están cubiertas con una pátina aterciopelada de herrumbre. La campana en la pared refleja la luz con una claridad antinatural que 'limpia' esa esquina específica de la pantalla, actuando como un punto focal hipnótico.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+{
+  "Room": "Room10",
+  "Name": "Cocina",
+  "Descripcion": "Un caos metalico. Las latas en la estufa estan cubiertas con una patina aterciopelada de herrumbre. La campana en la pared refleja la luz con una claridad antinatural que limpia esa esquina especifica de la pantalla, actuando como un punto focal hipnotico.",
+  "quiz_pool": [
+    {
+      "pregunta": "Que hay colgado en la pared?",
+      "opciones": [
+        { "texto": "Un Reloj", "accion": "continue" },
+        { "texto": "Un amuleto", "accion": "repeat" },
+        { "texto": "Un calendario", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna freidora de aire?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    },
+    {
+      "pregunta": "De que color es la nevera?",
+      "opciones": [
+        { "texto": "Verde", "accion": "continue" },
+        { "texto": "Blanca", "accion": "repeat" },
+        { "texto": "Amarilla", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna campana?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "La casa ruega ser bendecida?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay algun banco de madera?",
+      "opciones": [
+        { "texto": "Si", "accion": "continue" },
+        { "texto": "No", "accion": "repeat" }
+      ]
+    },
+    {
+      "pregunta": "Hay alguna cuna?",
+      "opciones": [
+        { "texto": "Si", "accion": "repeat" },
+        { "texto": "No", "accion": "continue" }
+      ]
+    }
+  ]
 }
 
-100:09:42.000 --> 00:09:52.000
-{ 
-    "Room": "Room11",
-    "Name": "Salida",
-    "Descripcion": "El alivio visual es efímero. La luz del jardín es plana y sin vida. Cuando la cámara se retira, la casa se convierte en una mancha oscura en el paisaje, una silueta que parece estar succionando el color de sus alrededores.",
-    "quizz_pool":  [{"pregunta": "¿Quieres pasar?", "opciones": ["Si", "No"], "correcta": 0}]
+00:09:42.000 --> 00:09:52.000
+{
+  "Room": "Room11",
+  "Name": "Salida",
+  "Descripcion": "El alivio visual es efimero. La luz del jardin es plana y sin vida. Cuando la camara se retira, la casa se convierte en una mancha oscura en el paisaje, una silueta que parece estar succionando el color de sus alrededores.",
+  "quiz_pool": [ ]
 }

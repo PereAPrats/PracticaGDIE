@@ -29,6 +29,162 @@ document.addEventListener("DOMContentLoaded", () => {
     const trackEs = document.getElementById("trackEs");
     const statusDisplay = document.getElementById("videoStatus");
     const qualitySelect = document.getElementById("quality");
+    const chaptersList = document.getElementById("chaptersList");
+    const playerContainer = video.closest(".video-player");
+    const controlsOverlay = playerContainer?.querySelector(".video-controls");
+
+    const FULLSCREEN_UI_TIMEOUT_MS = 1800;
+
+    let chapterItems = [];
+    let fsUiTimer = null;
+
+    const isPlayerFullscreen = () => {
+        return document.fullscreenElement === playerContainer;
+    };
+
+    const clearFsUiTimer = () => {
+        if (fsUiTimer) {
+            clearTimeout(fsUiTimer);
+            fsUiTimer = null;
+        }
+    };
+
+    const showFsUi = () => {
+        if (!playerContainer || !isPlayerFullscreen()) return;
+        playerContainer.classList.add("fs-ui-visible");
+    };
+
+    const hideFsUi = () => {
+        if (!playerContainer || !isPlayerFullscreen()) return;
+        playerContainer.classList.remove("fs-ui-visible");
+    };
+
+    const scheduleFsUiHide = () => {
+        if (!isPlayerFullscreen()) return;
+
+        clearFsUiTimer();
+        fsUiTimer = setTimeout(() => {
+            hideFsUi();
+        }, FULLSCREEN_UI_TIMEOUT_MS);
+    };
+
+    const handleFullscreenActivity = () => {
+        if (!isPlayerFullscreen()) return;
+        showFsUi();
+        scheduleFsUiHide();
+    };
+
+    const parseTimestampToSeconds = (value) => {
+        const trimmed = String(value).trim();
+        const parts = trimmed.split(":").map((part) => Number(part));
+
+        if (parts.length === 3 && parts.every(Number.isFinite)) {
+            const [hh, mm, ss] = parts;
+            return (hh * 3600) + (mm * 60) + ss;
+        }
+
+        if (parts.length === 2 && parts.every(Number.isFinite)) {
+            const [mm, ss] = parts;
+            return (mm * 60) + ss;
+        }
+
+        return null;
+    };
+
+    const parseChaptersVtt = (vttText) => {
+        const lines = vttText.split(/\r?\n/);
+        const parsed = [];
+
+        let i = 0;
+        while (i < lines.length) {
+            const rawLine = lines[i].trim();
+
+            if (!rawLine || /^WEBVTT/i.test(rawLine) || /^NOTE/i.test(rawLine) || /^\d+$/.test(rawLine)) {
+                i += 1;
+                continue;
+            }
+
+            if (rawLine.includes("-->") && rawLine.split("-->").length === 2) {
+                const [startRaw, endRaw] = rawLine.split("-->").map((part) => part.trim());
+                const start = parseTimestampToSeconds(startRaw);
+                const end = parseTimestampToSeconds(endRaw);
+
+                i += 1;
+                const textLines = [];
+                while (i < lines.length && lines[i].trim() !== "") {
+                    textLines.push(lines[i].trim());
+                    i += 1;
+                }
+
+                const title = textLines.join(" ") || `Capitulo ${parsed.length + 1}`;
+
+                if (start !== null && end !== null) {
+                    parsed.push({ start, end, title });
+                }
+
+                continue;
+            }
+
+            i += 1;
+        }
+
+        return parsed;
+    };
+
+    const setActiveChapter = (currentTime) => {
+        if (!chapterItems.length) return;
+
+        const activeIndex = chapterItems.findIndex((chapter) => {
+            return currentTime >= chapter.start && currentTime < chapter.end;
+        });
+
+        chapterItems.forEach((chapter, index) => {
+            chapter.button.classList.toggle("active", index === activeIndex);
+        });
+    };
+
+    const renderChapterButtons = (chapters) => {
+        if (!chaptersList) return;
+
+        if (!chapters.length) {
+            chaptersList.innerHTML = '<p class="chapters-loading">No hay capitulos disponibles.</p>';
+            return;
+        }
+
+        chaptersList.innerHTML = "";
+        chapterItems = chapters.map((chapter, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "chapter-btn";
+            button.textContent = `${index + 1}. ${chapter.title}`;
+            button.addEventListener("click", () => {
+                video.currentTime = chapter.start;
+                video.play();
+                setActiveChapter(chapter.start);
+            });
+            chaptersList.appendChild(button);
+
+            return { ...chapter, button };
+        });
+    };
+
+    const loadChapters = async () => {
+        if (!chaptersList) return;
+
+        try {
+            const response = await fetch("../media/chapters.vtt", { cache: "no-store" });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const vttText = await response.text();
+            const chapters = parseChaptersVtt(vttText);
+            renderChapterButtons(chapters);
+        } catch (error) {
+            chaptersList.innerHTML = '<p class="chapters-loading">Error al cargar chapters.vtt</p>';
+            console.error("No se pudieron cargar los capitulos:", error);
+        }
+    };
 
     // Configuración de rutas de iconos
     const paths = {
@@ -75,6 +231,8 @@ document.addEventListener("DOMContentLoaded", () => {
             progress.value = video.currentTime;
             timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
         }
+
+        setActiveChapter(video.currentTime);
     });
 
     video.addEventListener("loadedmetadata", () => {
@@ -103,7 +261,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("fullscreenchange", () => {
         fsIcon.src = document.fullscreenElement ? paths.fullscreenExit : paths.fullscreen;
+
+        if (isPlayerFullscreen()) {
+            showFsUi();
+            scheduleFsUiHide();
+        } else {
+            clearFsUiTimer();
+            playerContainer?.classList.remove("fs-ui-visible");
+        }
     });
+
+    if (playerContainer) {
+        playerContainer.addEventListener("mousemove", handleFullscreenActivity);
+        playerContainer.addEventListener("touchstart", handleFullscreenActivity, { passive: true });
+    }
+
+    if (controlsOverlay) {
+        controlsOverlay.addEventListener("mousemove", handleFullscreenActivity);
+        controlsOverlay.addEventListener("click", handleFullscreenActivity);
+        controlsOverlay.addEventListener("input", handleFullscreenActivity);
+        controlsOverlay.addEventListener("change", handleFullscreenActivity);
+    }
 
     // --- GESTIÓN EXPLÍCITA DE ERRORES Y ESTADOS ---
 
@@ -174,4 +352,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         };
     }
+
+    loadChapters();
 });
