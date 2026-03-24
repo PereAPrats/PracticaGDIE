@@ -5,11 +5,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const textContainer = document.getElementById('roomDescription');
     const nameContainer = document.getElementById('roomName');
     const statusContainer = document.getElementById('videoStatus');
+    const metadataElement = document.getElementById('pistas');
 
     let metadataTrack;
     let quizLanzado = false;
     let cueActualKey = null;
     let feedbackTimer = null;
+
+    const PLACEHOLDERS = {
+        es: {
+            roomName: 'Esperando...',
+            roomDescription: 'Cargando información del recorrido...'
+        },
+        en: {
+            roomName: 'Waiting...',
+            roomDescription: 'Loading tour information...'
+        }
+    };
+
+    function hayCueActivo() {
+        return !!(metadataTrack && metadataTrack.activeCues && metadataTrack.activeCues.length > 0);
+    }
+
+    function actualizarPlaceholdersIdioma(lang) {
+        const idioma = lang === 'en' ? 'en' : 'es';
+        const destino = PLACEHOLDERS[idioma];
+
+        if (nameContainer) {
+            const textoActual = (nameContainer.innerText || '').trim();
+            const esPlaceholder = textoActual === PLACEHOLDERS.es.roomName || textoActual === PLACEHOLDERS.en.roomName || textoActual === '';
+            if (esPlaceholder || !hayCueActivo()) {
+                nameContainer.innerText = destino.roomName;
+            }
+        }
+
+        if (textContainer) {
+            const textoActual = (textContainer.innerText || '').trim();
+            const esPlaceholder = textoActual === PLACEHOLDERS.es.roomDescription || textoActual === PLACEHOLDERS.en.roomDescription || textoActual === '';
+            if (esPlaceholder || !hayCueActivo()) {
+                textContainer.innerText = destino.roomDescription;
+            }
+        }
+    }
+
+    function resetMetadataState() {
+        cueActualKey = null;
+        quizLanzado = false;
+        metadataTrack = Array.from(video.textTracks).find(t => t.kind === 'metadata');
+        if (metadataTrack) metadataTrack.mode = 'hidden';
+    }
 
     function mostrarFeedback(mensaje) {
         if (!statusContainer || !mensaje) return;
@@ -32,6 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (metadataTrack) {
             metadataTrack.mode = "hidden"; // Asegura que los datos se procesen en segundo plano
         }
+
+        const srcActual = (metadataElement?.getAttribute('src') || '').toLowerCase();
+        actualizarPlaceholdersIdioma(srcActual.includes('metadataeng') ? 'en' : 'es');
+    });
+
+    document.addEventListener('metadata-language-change', (event) => {
+        const lang = event?.detail?.lang === 'en' ? 'en' : 'es';
+        const nextSrc = lang === 'en' ? '../media/metadataEng.vtt' : '../media/metadataEsp.vtt';
+
+        if (!metadataElement || metadataElement.getAttribute('src') === nextSrc) return;
+
+        metadataElement.setAttribute('src', nextSrc);
+        actualizarPlaceholdersIdioma(lang);
+
+        // Forzamos reinicio suave de lectura de cues al cambiar de idioma
+        resetMetadataState();
     });
 
     // 2. Monitor de tiempo (Interfaz y Quiz)

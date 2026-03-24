@@ -25,11 +25,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const progress = document.getElementById("progress");
     const timeDisplay = document.getElementById("time");
     const status = document.getElementById("videoStatus");
-    const subtitleSelect = document.getElementById("subtitles");
+    const settingsWrapper = document.getElementById("settingsWrapper");
+    const settingsToggle = document.getElementById("settingsToggle");
+    const settingsMenu = document.getElementById("settingsMenu");
+    const subtitlesCurrent = document.getElementById("subtitlesCurrent");
+    const audioCurrent = document.getElementById("audioCurrent");
+    const qualityCurrent = document.getElementById("qualityCurrent");
     const trackEs = document.getElementById("trackEs");
     const statusDisplay = document.getElementById("videoStatus");
-    const qualitySelect = document.getElementById("quality");
     const chaptersList = document.getElementById("chaptersList");
+    const chaptersTitle = document.getElementById("chaptersTitle");
+    const metadataLangToggle = document.getElementById("metadataLangToggle");
+    const metadataLangCurrent = document.getElementById("metadataLangCurrent");
+    const metadataTrackElement = document.getElementById("pistas");
     const playerContainer = video.closest(".video-player");
     const controlsOverlay = playerContainer?.querySelector(".video-controls");
 
@@ -37,6 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let chapterItems = [];
     let fsUiTimer = null;
+    let currentMetadataLang = "es";
+    let currentSubtitleLang = "off";
+    let currentAudioLang = "off";
+    let currentQuality = "1080p";
 
     const isPlayerFullscreen = () => {
         return document.fullscreenElement === playerContainer;
@@ -168,11 +180,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    const loadChapters = async () => {
+    const getChapterFileByLang = (lang) => {
+        return lang === "en" ? "../media/chaptersEng.vtt" : "../media/chaptersEsp.vtt";
+    };
+
+    const detectMetadataLangFromSrc = () => {
+        const src = (metadataTrackElement?.getAttribute("src") || "").toLowerCase();
+        return src.includes("metadataeng") ? "en" : "es";
+    };
+
+    const applyMetadataLanguage = (lang) => {
+        currentMetadataLang = lang;
+
+        if (chaptersTitle) {
+            chaptersTitle.textContent = lang === "en" ? "Chapters" : "Capitulos";
+        }
+
+        if (metadataLangCurrent) {
+            metadataLangCurrent.textContent = lang.toUpperCase();
+        }
+
+        document.dispatchEvent(new CustomEvent("metadata-language-change", {
+            detail: { lang }
+        }));
+    };
+
+    const loadChapters = async (lang = currentMetadataLang) => {
         if (!chaptersList) return;
 
         try {
-            const response = await fetch("../media/chapters.vtt", { cache: "no-store" });
+            const chapterFile = getChapterFileByLang(lang);
+            const response = await fetch(chapterFile, { cache: "no-store" });
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
@@ -186,6 +224,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    if (metadataLangToggle) {
+        metadataLangToggle.addEventListener("change", () => {
+            const lang = metadataLangToggle.checked ? "en" : "es";
+            applyMetadataLanguage(lang);
+            loadChapters(lang);
+        });
+    }
+
+    document.addEventListener("metadata-language-change", (event) => {
+        const lang = event?.detail?.lang === "en" ? "en" : "es";
+
+        if (metadataLangToggle) {
+            metadataLangToggle.checked = (lang === "en");
+        }
+
+        if (metadataLangCurrent) {
+            metadataLangCurrent.textContent = lang.toUpperCase();
+        }
+    });
+
     // Configuración de rutas de iconos
     const paths = {
         play: "../assets/img/play.svg",
@@ -196,9 +254,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fullscreenExit: "../assets/img/minim.svg"
     };
 
-    subtitleSelect.addEventListener("change", (e) => {
-        const lang = e.target.value; // 'es', 'en' o 'off'
-        
+    const setSubtitleLanguage = (lang) => {
+        currentSubtitleLang = lang;
+
         for (let i = 0; i < video.textTracks.length; i++) {
             const track = video.textTracks[i];
             
@@ -207,6 +265,111 @@ document.addEventListener("DOMContentLoaded", () => {
                 track.mode = (track.language === lang) ? "showing" : "disabled";
             }
         }
+
+        if (subtitlesCurrent) {
+            subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
+        }
+    };
+
+    const setAudioLanguage = (lang) => {
+        currentAudioLang = lang;
+
+        if (audioCurrent) {
+            audioCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
+        }
+
+        // Placeholder de selector de audio hasta integrar pistas de audio reales
+        if (statusDisplay) {
+            statusDisplay.textContent = lang === "off"
+                ? "Audio desactivado"
+                : `Audio seleccionado: ${lang.toUpperCase()}`;
+
+            setTimeout(() => {
+                if (statusDisplay.textContent.startsWith("Audio")) {
+                    statusDisplay.textContent = "";
+                }
+            }, 1200);
+        }
+    };
+
+    const setVideoQuality = (quality) => {
+        currentQuality = quality;
+
+        if (qualityCurrent) {
+            qualityCurrent.textContent = quality;
+        }
+
+        const currentTime = video.currentTime;
+        const isPaused = video.paused;
+
+        video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+        video.load();
+
+        video.onloadedmetadata = () => {
+            video.currentTime = currentTime;
+            if (!isPaused) video.play();
+            video.onloadedmetadata = null;
+        };
+    };
+
+    const closeSettingsMenu = () => {
+        if (!settingsWrapper || !settingsMenu) return;
+        settingsWrapper.classList.remove("open");
+        settingsMenu.setAttribute("aria-hidden", "true");
+        settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
+            item.classList.remove("open");
+        });
+    };
+
+    const toggleSettingsMenu = () => {
+        if (!settingsWrapper || !settingsMenu) return;
+        const willOpen = !settingsWrapper.classList.contains("open");
+        settingsWrapper.classList.toggle("open", willOpen);
+        settingsMenu.setAttribute("aria-hidden", willOpen ? "false" : "true");
+    };
+
+    if (settingsToggle) {
+        settingsToggle.addEventListener("click", (event) => {
+            event.stopPropagation();
+            toggleSettingsMenu();
+        });
+    }
+
+    if (settingsMenu) {
+        settingsMenu.addEventListener("click", (event) => {
+            event.stopPropagation();
+
+            const mainBtn = event.target.closest(".settings-main-btn");
+            if (mainBtn) {
+                const item = mainBtn.closest(".settings-item");
+                if (!item) return;
+
+                const isOpen = item.classList.contains("open");
+                settingsMenu.querySelectorAll(".settings-item").forEach((node) => node.classList.remove("open"));
+                item.classList.toggle("open", !isOpen);
+                return;
+            }
+
+            const optionBtn = event.target.closest(".settings-option");
+            if (!optionBtn) return;
+
+            const setting = optionBtn.dataset.setting;
+            const value = optionBtn.dataset.value;
+
+            if (setting === "subtitles") setSubtitleLanguage(value);
+            if (setting === "audio") setAudioLanguage(value);
+            if (setting === "quality") setVideoQuality(value);
+
+            settingsMenu.querySelectorAll(`.settings-option[data-setting="${setting}"]`).forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.value === value);
+            });
+
+            closeSettingsMenu();
+        });
+    }
+
+    document.addEventListener("click", () => {
+        closeSettingsMenu();
     });
 
     // --- CONTROL DE REPRODUCCIÓN ---
@@ -331,27 +494,26 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "La red está demasiado lenta. Reintentando...";
     });
 
-    // --- TEST DE CONEXIÓN ---
-    console.log("Player cargado. ¿Existe el selector?:", !!qualitySelect);
+    setSubtitleLanguage(currentSubtitleLang);
+    setAudioLanguage(currentAudioLang);
 
-    if (qualitySelect) {
-        qualitySelect.onchange = function() {
-            const quality = this.value;
-            const currentTime = video.currentTime;
-            const isPaused = video.paused;
+    if (settingsMenu) {
+        settingsMenu.querySelectorAll(".settings-option").forEach((btn) => {
+            const setting = btn.dataset.setting;
+            const value = btn.dataset.value;
 
-            console.log("Cambiando calidad a:", quality);
-
-            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
-            video.load();
-
-            video.onloadedmetadata = () => {
-                video.currentTime = currentTime;
-                if (!isPaused) video.play();
-                video.onloadedmetadata = null;
-            };
-        };
+            if (setting === "subtitles" && value === currentSubtitleLang) btn.classList.add("active");
+            if (setting === "audio" && value === currentAudioLang) btn.classList.add("active");
+            if (setting === "quality" && value === currentQuality) btn.classList.add("active");
+        });
     }
 
-    loadChapters();
+    const initialLang = detectMetadataLangFromSrc();
+
+    if (metadataLangToggle) {
+        metadataLangToggle.checked = (initialLang === "en");
+    }
+
+    applyMetadataLanguage(initialLang);
+    loadChapters(initialLang);
 });
