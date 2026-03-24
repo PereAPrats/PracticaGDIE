@@ -27,7 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const status = document.getElementById("videoStatus");
     const subtitleSelect = document.getElementById("subtitles");
     const trackEs = document.getElementById("trackEs");
-const statusDisplay = document.getElementById("videoStatus");
+    const statusDisplay = document.getElementById("videoStatus");
+    const qualitySelect = document.getElementById("quality");
 
     // Configuración de rutas de iconos
     const paths = {
@@ -150,5 +151,27 @@ const statusDisplay = document.getElementById("videoStatus");
 
     video.addEventListener("stalled", () => {
         status.textContent = "La red está demasiado lenta. Reintentando...";
+    });
+
+    qualitySelect.addEventListener("change", (e) => {
+        const quality = e.target.value;
+        const currentTime = video.currentTime;
+        const isPaused = video.paused;
+
+        console.log("Evento detectado. Cambiando a:", quality);
+
+        // Cambiamos el src directamente
+        video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+        
+        // RECARGA OBLIGATORIA
+        video.load();
+
+        // Restaurar tiempo cuando cargue el nuevo archivo
+        video.onloadedmetadata = () => {
+            video.currentTime = currentTime;
+            if (!isPaused) video.play();
+            console.log("Carga de calidad finalizada.");
+            video.onloadedmetadata = null;
+        };
     });
 });
