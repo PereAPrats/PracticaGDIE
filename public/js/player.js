@@ -153,25 +153,25 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "La red está demasiado lenta. Reintentando...";
     });
 
-    qualitySelect.addEventListener("change", (e) => {
-        const quality = e.target.value;
-        const currentTime = video.currentTime;
-        const isPaused = video.paused;
+    // --- TEST DE CONEXIÓN ---
+    console.log("Player cargado. ¿Existe el selector?:", !!qualitySelect);
 
-        console.log("Evento detectado. Cambiando a:", quality);
+    if (qualitySelect) {
+        qualitySelect.onchange = function() {
+            const quality = this.value;
+            const currentTime = video.currentTime;
+            const isPaused = video.paused;
 
-        // Cambiamos el src directamente
-        video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
-        
-        // RECARGA OBLIGATORIA
-        video.load();
+            console.log("Cambiando calidad a:", quality);
 
-        // Restaurar tiempo cuando cargue el nuevo archivo
-        video.onloadedmetadata = () => {
-            video.currentTime = currentTime;
-            if (!isPaused) video.play();
-            console.log("Carga de calidad finalizada.");
-            video.onloadedmetadata = null;
+            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+            video.load();
+
+            video.onloadedmetadata = () => {
+                video.currentTime = currentTime;
+                if (!isPaused) video.play();
+                video.onloadedmetadata = null;
+            };
         };
-    });
+    }
 });
