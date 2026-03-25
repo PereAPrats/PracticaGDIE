@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const metadataTrackElement = document.getElementById("pistas");
     const playerContainer = video.closest(".video-player");
     const controlsOverlay = playerContainer?.querySelector(".video-controls");
+    
 
     const FULLSCREEN_UI_TIMEOUT_MS = 1800;
 
@@ -49,6 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentSubtitleLang = "off";
     let currentAudioLang = "off";
     let currentQuality = "1080p";
+    let dashPlayer = null; // Instancia para MPEG-DASH
+    let hlsPlayer = null;  // Instancia para HLS
 
     const isPlayerFullscreen = () => {
         return document.fullscreenElement === playerContainer;
@@ -292,24 +295,108 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const setVideoQuality = (quality) => {
-        currentQuality = quality;
-
-        if (qualityCurrent) {
-            qualityCurrent.textContent = quality;
+    // Función para limpiar cualquier reproductor adaptativo activo antes de cambiar la calidad
+    const resetAdaptivePlayers = () => {
+        if (dashPlayer) {
+            dashPlayer.reset();
+            dashPlayer = null;
         }
+        if (hlsPlayer) {
+            hlsPlayer.destroy();
+            hlsPlayer = null;
+        }
+        video.pause();
+        video.removeAttribute('src'); // Limpiamos el src de MP4
+        video.load()
+    };
 
+    const setVideoQuality = (quality) => {
+        console.log(`Cambiando calidad a: ${quality}`);
         const currentTime = video.currentTime;
         const isPaused = video.paused;
+        
+        // Limpiamos cualquier reproductor adaptativo previo
+        resetAdaptivePlayers();
 
-        video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
-        video.load();
 
-        video.onloadedmetadata = () => {
-            video.currentTime = currentTime;
-            if (!isPaused) video.play();
-            video.onloadedmetadata = null;
-        };
+        if (quality === "DASH") {
+            console.log("Inicializando reproductor MPEG-DASH...");
+            // Configuración MPEG-DASH
+            dashPlayer = dashjs.MediaPlayer().create();
+            dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
+            dashPlayer.seek(currentTime);
+            currentQuality = "DASH";
+        } 
+        else if (quality === "HLS") {
+            console.log("Inicializando reproductor HLS...");
+            // Configuración HLS
+            if (Hls.isSupported()) {
+                hlsPlayer = new Hls();
+                hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
+                hlsPlayer.attachMedia(video);
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.currentTime = currentTime;
+                    if (!isPaused) video.play();
+                });
+            }
+            currentQuality = "HLS";
+        } 
+        else if (quality === "AUTO") {
+        //    console.log("Cambiando a calidad automática (DASH si soportado, sino HLS, sino MP4)...");
+        //    if (dashjs.MediaPlayer.isSupported()) {
+        //        console.log("Inicializando reproductor MPEG-DASH...");
+        //        // Configuración MPEG-DASH
+        //        dashPlayer = dashjs.MediaPlayer().create();
+        //        dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
+        //        dashPlayer.seek(currentTime);
+        //        currentQuality = "DASH";
+        //    } else if (Hls.isSupported()) {
+        //        // Configuración HLS
+        //        hlsPlayer = new Hls();
+        //        hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
+        //        hlsPlayer.attachMedia(video);
+        //        hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+        //            video.currentTime = currentTime;
+        //            if (!isPaused) video.play();
+        //        });
+        //        currentQuality = "HLS";
+        //    } else {
+        //        console.warn("Ningún reproductor adaptativo soportado. Reproduciendo MP4 progresivo.");
+        //        video.src = `../assets/videos/mp4/Video_720p.mp4`;
+        //        video.load();
+        //        video.onloadedmetadata = () => {
+        //            video.currentTime = currentTime;
+        //            if (!isPaused) video.play();
+        //            video.onloadedmetadata = null;
+        //        };
+        //        currentQuality = "720p";
+        //    }
+            console.log("Modo auto aun no no implementado. Reproduciendo MP4 progresivo por defecto...");
+            currentQuality = "720p";
+            video.src = `../assets/videos/mp4/Video_720p.mp4`;
+            video.load();
+            video.onloadedmetadata = () => {
+                video.currentTime = currentTime;
+                if (!isPaused) video.play();
+                video.onloadedmetadata = null;
+            };
+        }
+        else {
+            console.log("Cambiando a calidad progresiva (MP4)...");
+            // Modo Progresivo (MP4 normal)
+            currentQuality = quality;
+            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+            video.load();
+            video.onloadedmetadata = () => {
+                video.currentTime = currentTime;
+                if (!isPaused) video.play();
+                video.onloadedmetadata = null;
+            };
+        }
+
+        if (qualityCurrent) {
+            qualityCurrent.textContent = currentQuality.toUpperCase();
+        }
     };
 
     const closeSettingsMenu = () => {
@@ -351,8 +438,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const optionBtn = event.target.closest(".settings-option");
-            if (!optionBtn) return;
-
+            if (!optionBtn){
+                return;
+            }
             const setting = optionBtn.dataset.setting;
             const value = optionBtn.dataset.value;
 
