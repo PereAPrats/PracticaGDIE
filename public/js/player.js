@@ -158,6 +158,34 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    // Función para procesar y limpiar archivos VTT (remover números de ID)
+    const loadCleanVTTSubtitles = async (trackElement, vttPath) => {
+        try {
+            const response = await fetch(vttPath, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const vttText = await response.text();
+            const cleanedVTT = vttText
+                .split(/\r?\n/)
+                .filter((line) => {
+                    // Remover líneas que son SOLO números (IDs de capítulo)
+                    return !/^\d+$/.test(line.trim());
+                })
+                .join("\n");
+
+            // Crear un blob con el VTT limpio
+            const blob = new Blob([cleanedVTT], { type: "text/vtt;charset=utf-8" });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Asignar el blob URL al track
+            trackElement.src = blobUrl;
+            trackElement.dispatchEvent(new Event("load"));
+        } catch (error) {
+            console.error("Error al cargar subtítulos limpios:", error);
+            trackElement.dispatchEvent(new Event("error"));
+        }
+    };
+
     const renderChapterButtons = (chapters) => {
         if (!chaptersList) return;
 
@@ -271,6 +299,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (subtitlesCurrent) {
             subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
+        }
+
+        // Si selecciona inglés, cargar y limpiar subtítulos en inglés
+        if (lang === "en") {
+            const trackEn = document.getElementById("trackEn");
+            if (trackEn && !trackEn.src?.includes("blob:")) {
+                loadCleanVTTSubtitles(trackEn, "../media/subtitlesEng.vtt");
+            }
         }
     };
 
@@ -604,4 +640,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyMetadataLanguage(initialLang);
     loadChapters(initialLang);
+        // Cargar subtítulos limpios (sin números de ID)
+    if (trackEs) {
+        const subtitlePath = trackEs.getAttribute("src");
+        if (subtitlePath) {
+            loadCleanVTTSubtitles(trackEs, subtitlePath);
+        }
+    }
 });
