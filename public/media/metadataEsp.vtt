@@ -79,7 +79,7 @@
       "pregunta": "Que nombre tiene la revista encima de las impresoras?",
       "opciones": [
         { "texto": "Masonry", "accion": "continue" },
-        { "texto": "", "accion": "repeat" },
+        { "texto": "Architectural Digest", "accion": "repeat" },
         { "texto": "No hay revista", "accion": "repeat" }
       ]
     }
@@ -102,9 +102,9 @@
     {
       "pregunta": "De que equipo es el traje de animadora?",
       "opciones": [
-        { "texto": "", "accion": "repeat" },
+        { "texto": "LIONS", "accion": "repeat" },
         { "texto": "TIGERS", "accion": "continue" },
-        { "texto": "", "accion": "repeat" }
+        { "texto": "BEARS", "accion": "repeat" }
       ]
     },
     {
@@ -354,9 +354,9 @@
     {
       "pregunta": "Cual es el titulo del libro que abre?",
       "opciones": [
-        { "texto": "", "accion": "repeat" },
+        { "texto": "The Constitution", "accion": "repeat" },
         { "texto": "The Confederacy", "accion": "continue" },
-        { "texto": "", "accion": "repeat" }
+        { "texto": "The Union", "accion": "repeat" }
       ]
     },
     {
