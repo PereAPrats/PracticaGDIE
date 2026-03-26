@@ -25,10 +25,255 @@ document.addEventListener("DOMContentLoaded", () => {
     const progress = document.getElementById("progress");
     const timeDisplay = document.getElementById("time");
     const status = document.getElementById("videoStatus");
-    const subtitleSelect = document.getElementById("subtitles");
+    const settingsWrapper = document.getElementById("settingsWrapper");
+    const settingsToggle = document.getElementById("settingsToggle");
+    const settingsMenu = document.getElementById("settingsMenu");
+    const subtitlesCurrent = document.getElementById("subtitlesCurrent");
+    const audioCurrent = document.getElementById("audioCurrent");
+    const qualityCurrent = document.getElementById("qualityCurrent");
     const trackEs = document.getElementById("trackEs");
     const statusDisplay = document.getElementById("videoStatus");
-    const qualitySelect = document.getElementById("quality");
+    const chaptersList = document.getElementById("chaptersList");
+    const chaptersTitle = document.getElementById("chaptersTitle");
+    const metadataLangToggle = document.getElementById("metadataLangToggle");
+    const metadataLangCurrent = document.getElementById("metadataLangCurrent");
+    const metadataTrackElement = document.getElementById("pistas");
+    const playerContainer = video.closest(".video-player");
+    const controlsOverlay = playerContainer?.querySelector(".video-controls");
+    
+
+    const FULLSCREEN_UI_TIMEOUT_MS = 1800;
+
+    let chapterItems = [];
+    let fsUiTimer = null;
+    let currentMetadataLang = "es";
+    let currentSubtitleLang = "off";
+    let currentAudioLang = "off";
+    let currentQuality = "1080p";
+    let dashPlayer = null; // Instancia para MPEG-DASH
+    let hlsPlayer = null;  // Instancia para HLS
+
+    const isPlayerFullscreen = () => {
+        return document.fullscreenElement === playerContainer;
+    };
+
+    const clearFsUiTimer = () => {
+        if (fsUiTimer) {
+            clearTimeout(fsUiTimer);
+            fsUiTimer = null;
+        }
+    };
+
+    const showFsUi = () => {
+        if (!playerContainer || !isPlayerFullscreen()) return;
+        playerContainer.classList.add("fs-ui-visible");
+    };
+
+    const hideFsUi = () => {
+        if (!playerContainer || !isPlayerFullscreen()) return;
+        playerContainer.classList.remove("fs-ui-visible");
+    };
+
+    const scheduleFsUiHide = () => {
+        if (!isPlayerFullscreen()) return;
+
+        clearFsUiTimer();
+        fsUiTimer = setTimeout(() => {
+            hideFsUi();
+        }, FULLSCREEN_UI_TIMEOUT_MS);
+    };
+
+    const handleFullscreenActivity = () => {
+        if (!isPlayerFullscreen()) return;
+        showFsUi();
+        scheduleFsUiHide();
+    };
+
+    const parseTimestampToSeconds = (value) => {
+        const trimmed = String(value).trim();
+        const parts = trimmed.split(":").map((part) => Number(part));
+
+        if (parts.length === 3 && parts.every(Number.isFinite)) {
+            const [hh, mm, ss] = parts;
+            return (hh * 3600) + (mm * 60) + ss;
+        }
+
+        if (parts.length === 2 && parts.every(Number.isFinite)) {
+            const [mm, ss] = parts;
+            return (mm * 60) + ss;
+        }
+
+        return null;
+    };
+
+    const parseChaptersVtt = (vttText) => {
+        const lines = vttText.split(/\r?\n/);
+        const parsed = [];
+
+        let i = 0;
+        while (i < lines.length) {
+            const rawLine = lines[i].trim();
+
+            if (!rawLine || /^WEBVTT/i.test(rawLine) || /^NOTE/i.test(rawLine) || /^\d+$/.test(rawLine)) {
+                i += 1;
+                continue;
+            }
+
+            if (rawLine.includes("-->") && rawLine.split("-->").length === 2) {
+                const [startRaw, endRaw] = rawLine.split("-->").map((part) => part.trim());
+                const start = parseTimestampToSeconds(startRaw);
+                const end = parseTimestampToSeconds(endRaw);
+
+                i += 1;
+                const textLines = [];
+                while (i < lines.length && lines[i].trim() !== "") {
+                    textLines.push(lines[i].trim());
+                    i += 1;
+                }
+
+                const title = textLines.join(" ") || `Capitulo ${parsed.length + 1}`;
+
+                if (start !== null && end !== null) {
+                    parsed.push({ start, end, title });
+                }
+
+                continue;
+            }
+
+            i += 1;
+        }
+
+        return parsed;
+    };
+
+    const setActiveChapter = (currentTime) => {
+        if (!chapterItems.length) return;
+
+        const activeIndex = chapterItems.findIndex((chapter) => {
+            return currentTime >= chapter.start && currentTime < chapter.end;
+        });
+
+        chapterItems.forEach((chapter, index) => {
+            chapter.button.classList.toggle("active", index === activeIndex);
+        });
+    };
+
+    // Función para procesar y limpiar archivos VTT (remover números de ID)
+    const loadCleanVTTSubtitles = async (trackElement, vttPath) => {
+        try {
+            const response = await fetch(vttPath, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const vttText = await response.text();
+            const cleanedVTT = vttText
+                .split(/\r?\n/)
+                .filter((line) => {
+                    // Remover líneas que son SOLO números (IDs de capítulo)
+                    return !/^\d+$/.test(line.trim());
+                })
+                .join("\n");
+
+            // Crear un blob con el VTT limpio
+            const blob = new Blob([cleanedVTT], { type: "text/vtt;charset=utf-8" });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Asignar el blob URL al track
+            trackElement.src = blobUrl;
+            trackElement.dispatchEvent(new Event("load"));
+        } catch (error) {
+            console.error("Error al cargar subtítulos limpios:", error);
+            trackElement.dispatchEvent(new Event("error"));
+        }
+    };
+
+    const renderChapterButtons = (chapters) => {
+        if (!chaptersList) return;
+
+        if (!chapters.length) {
+            chaptersList.innerHTML = '<p class="chapters-loading">No hay capitulos disponibles.</p>';
+            return;
+        }
+
+        chaptersList.innerHTML = "";
+        chapterItems = chapters.map((chapter, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "chapter-btn";
+            button.textContent = `${index + 1}. ${chapter.title}`;
+            button.addEventListener("click", () => {
+                video.currentTime = chapter.start;
+                video.play();
+                setActiveChapter(chapter.start);
+            });
+            chaptersList.appendChild(button);
+
+            return { ...chapter, button };
+        });
+    };
+
+    const getChapterFileByLang = (lang) => {
+        return lang === "en" ? "../media/chaptersEng.vtt" : "../media/chaptersEsp.vtt";
+    };
+
+    const detectMetadataLangFromSrc = () => {
+        const src = (metadataTrackElement?.getAttribute("src") || "").toLowerCase();
+        return src.includes("metadataeng") ? "en" : "es";
+    };
+
+    const applyMetadataLanguage = (lang) => {
+        currentMetadataLang = lang;
+
+        if (chaptersTitle) {
+            chaptersTitle.textContent = lang === "en" ? "Chapters" : "Capitulos";
+        }
+
+        if (metadataLangCurrent) {
+            metadataLangCurrent.textContent = lang.toUpperCase();
+        }
+
+        document.dispatchEvent(new CustomEvent("metadata-language-change", {
+            detail: { lang }
+        }));
+    };
+
+    const loadChapters = async (lang = currentMetadataLang) => {
+        if (!chaptersList) return;
+
+        try {
+            const chapterFile = getChapterFileByLang(lang);
+            const response = await fetch(chapterFile, { cache: "no-store" });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const vttText = await response.text();
+            const chapters = parseChaptersVtt(vttText);
+            renderChapterButtons(chapters);
+        } catch (error) {
+            chaptersList.innerHTML = '<p class="chapters-loading">Error al cargar chapters.vtt</p>';
+            console.error("No se pudieron cargar los capitulos:", error);
+        }
+    };
+
+    if (metadataLangToggle) {
+        metadataLangToggle.addEventListener("change", () => {
+            const lang = metadataLangToggle.checked ? "en" : "es";
+            applyMetadataLanguage(lang);
+            loadChapters(lang);
+        });
+    }
+
+    document.addEventListener("metadata-language-change", (event) => {
+        const lang = event?.detail?.lang === "en" ? "en" : "es";
+
+        if (metadataLangToggle) {
+            metadataLangToggle.checked = (lang === "en");
+        }
+
+        if (metadataLangCurrent) {
+            metadataLangCurrent.textContent = lang.toUpperCase();
+        }
+    });
 
     // Configuración de rutas de iconos
     const paths = {
@@ -40,9 +285,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fullscreenExit: "../assets/img/minim.svg"
     };
 
-    subtitleSelect.addEventListener("change", (e) => {
-        const lang = e.target.value; // 'es', 'en' o 'off'
-        
+    const setSubtitleLanguage = (lang) => {
+        currentSubtitleLang = lang;
+
         for (let i = 0; i < video.textTracks.length; i++) {
             const track = video.textTracks[i];
             
@@ -51,6 +296,164 @@ document.addEventListener("DOMContentLoaded", () => {
                 track.mode = (track.language === lang) ? "showing" : "disabled";
             }
         }
+
+        if (subtitlesCurrent) {
+            subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
+        }
+
+        // Si selecciona inglés, cargar y limpiar subtítulos en inglés
+        if (lang === "en") {
+            const trackEn = document.getElementById("trackEn");
+            if (trackEn && !trackEn.src?.includes("blob:")) {
+                loadCleanVTTSubtitles(trackEn, "../media/subtitlesEng.vtt");
+            }
+        }
+    };
+
+    const setAudioLanguage = (lang) => {
+        currentAudioLang = lang;
+
+        if (audioCurrent) {
+            audioCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
+        }
+
+        // Placeholder de selector de audio hasta integrar pistas de audio reales
+        if (statusDisplay) {
+            statusDisplay.textContent = lang === "off"
+                ? "Audio desactivado"
+                : `Audio seleccionado: ${lang.toUpperCase()}`;
+
+            setTimeout(() => {
+                if (statusDisplay.textContent.startsWith("Audio")) {
+                    statusDisplay.textContent = "";
+                }
+            }, 1200);
+        }
+    };
+
+    // Función para limpiar cualquier reproductor adaptativo activo antes de cambiar la calidad
+    const resetAdaptivePlayers = () => {
+        if (dashPlayer) {
+            dashPlayer.reset();
+            dashPlayer = null;
+        }
+        if (hlsPlayer) {
+            hlsPlayer.destroy();
+            hlsPlayer = null;
+        }
+        video.pause();
+        video.removeAttribute('src'); // Limpiamos el src de MP4
+        video.load()
+    };
+
+    const setVideoQuality = (quality) => {
+        console.log(`Cambiando calidad a: ${quality}`);
+        const currentTime = video.currentTime;
+        const isPaused = video.paused;
+        
+        // Limpiamos cualquier reproductor adaptativo previo
+        resetAdaptivePlayers();
+
+
+        if (quality === "DASH") {
+            console.log("Inicializando reproductor MPEG-DASH...");
+            // Configuración MPEG-DASH
+            dashPlayer = dashjs.MediaPlayer().create();
+            dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
+            dashPlayer.seek(currentTime);
+            currentQuality = "DASH";
+        } 
+        else if (quality === "HLS") {
+            console.log("Inicializando reproductor HLS...");
+            // Configuración HLS
+            if (Hls.isSupported()) {
+                hlsPlayer = new Hls();
+                hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
+                hlsPlayer.attachMedia(video);
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.currentTime = currentTime;
+                    if (!isPaused) video.play();
+                });
+            }
+            currentQuality = "HLS";
+        }
+        else {
+            console.log("Cambiando a calidad progresiva (MP4)...");
+            // Modo Progresivo (MP4 normal)
+            currentQuality = quality;
+            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+            video.load();
+            video.onloadedmetadata = () => {
+                video.currentTime = currentTime;
+                if (!isPaused) video.play();
+                video.onloadedmetadata = null;
+            };
+        }
+
+        if (qualityCurrent) {
+            qualityCurrent.textContent = currentQuality.toUpperCase();
+        }
+    };
+
+    const closeSettingsMenu = () => {
+        if (!settingsWrapper || !settingsMenu) return;
+        settingsWrapper.classList.remove("open");
+        settingsMenu.setAttribute("aria-hidden", "true");
+        settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
+            item.classList.remove("open");
+        });
+    };
+
+    const toggleSettingsMenu = () => {
+        if (!settingsWrapper || !settingsMenu) return;
+        const willOpen = !settingsWrapper.classList.contains("open");
+        settingsWrapper.classList.toggle("open", willOpen);
+        settingsMenu.setAttribute("aria-hidden", willOpen ? "false" : "true");
+    };
+
+    if (settingsToggle) {
+        settingsToggle.addEventListener("click", (event) => {
+            event.stopPropagation();
+            toggleSettingsMenu();
+        });
+    }
+
+    if (settingsMenu) {
+        settingsMenu.addEventListener("click", (event) => {
+            event.stopPropagation();
+
+            const mainBtn = event.target.closest(".settings-main-btn");
+            if (mainBtn) {
+                const item = mainBtn.closest(".settings-item");
+                if (!item) return;
+
+                const isOpen = item.classList.contains("open");
+                settingsMenu.querySelectorAll(".settings-item").forEach((node) => node.classList.remove("open"));
+                item.classList.toggle("open", !isOpen);
+                return;
+            }
+
+            const optionBtn = event.target.closest(".settings-option");
+            if (!optionBtn){
+                return;
+            }
+            const setting = optionBtn.dataset.setting;
+            const value = optionBtn.dataset.value;
+
+            if (setting === "subtitles") setSubtitleLanguage(value);
+            if (setting === "audio") setAudioLanguage(value);
+            if (setting === "quality") setVideoQuality(value);
+
+            settingsMenu.querySelectorAll(`.settings-option[data-setting="${setting}"]`).forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.value === value);
+            });
+
+            closeSettingsMenu();
+        });
+    }
+
+    document.addEventListener("click", () => {
+        closeSettingsMenu();
     });
 
     // --- CONTROL DE REPRODUCCIÓN ---
@@ -75,6 +478,8 @@ document.addEventListener("DOMContentLoaded", () => {
             progress.value = video.currentTime;
             timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
         }
+
+        setActiveChapter(video.currentTime);
     });
 
     video.addEventListener("loadedmetadata", () => {
@@ -103,7 +508,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("fullscreenchange", () => {
         fsIcon.src = document.fullscreenElement ? paths.fullscreenExit : paths.fullscreen;
+
+        if (isPlayerFullscreen()) {
+            showFsUi();
+            scheduleFsUiHide();
+        } else {
+            clearFsUiTimer();
+            playerContainer?.classList.remove("fs-ui-visible");
+        }
     });
+
+    if (playerContainer) {
+        playerContainer.addEventListener("mousemove", handleFullscreenActivity);
+        playerContainer.addEventListener("touchstart", handleFullscreenActivity, { passive: true });
+    }
+
+    if (controlsOverlay) {
+        controlsOverlay.addEventListener("mousemove", handleFullscreenActivity);
+        controlsOverlay.addEventListener("click", handleFullscreenActivity);
+        controlsOverlay.addEventListener("input", handleFullscreenActivity);
+        controlsOverlay.addEventListener("change", handleFullscreenActivity);
+    }
 
     // --- GESTIÓN EXPLÍCITA DE ERRORES Y ESTADOS ---
 
@@ -153,25 +578,33 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "La red está demasiado lenta. Reintentando...";
     });
 
-    // --- TEST DE CONEXIÓN ---
-    console.log("Player cargado. ¿Existe el selector?:", !!qualitySelect);
+    setSubtitleLanguage(currentSubtitleLang);
+    setAudioLanguage(currentAudioLang);
 
-    if (qualitySelect) {
-        qualitySelect.onchange = function() {
-            const quality = this.value;
-            const currentTime = video.currentTime;
-            const isPaused = video.paused;
+    if (settingsMenu) {
+        settingsMenu.querySelectorAll(".settings-option").forEach((btn) => {
+            const setting = btn.dataset.setting;
+            const value = btn.dataset.value;
 
-            console.log("Cambiando calidad a:", quality);
+            if (setting === "subtitles" && value === currentSubtitleLang) btn.classList.add("active");
+            if (setting === "audio" && value === currentAudioLang) btn.classList.add("active");
+            if (setting === "quality" && value === currentQuality) btn.classList.add("active");
+        });
+    }
 
-            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
-            video.load();
+    const initialLang = detectMetadataLangFromSrc();
 
-            video.onloadedmetadata = () => {
-                video.currentTime = currentTime;
-                if (!isPaused) video.play();
-                video.onloadedmetadata = null;
-            };
-        };
+    if (metadataLangToggle) {
+        metadataLangToggle.checked = (initialLang === "en");
+    }
+
+    applyMetadataLanguage(initialLang);
+    loadChapters(initialLang);
+        // Cargar subtítulos limpios (sin números de ID)
+    if (trackEs) {
+        const subtitlePath = trackEs.getAttribute("src");
+        if (subtitlePath) {
+            loadCleanVTTSubtitles(trackEs, subtitlePath);
+        }
     }
 });

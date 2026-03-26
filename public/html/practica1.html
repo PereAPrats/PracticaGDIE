@@ -6,6 +6,8 @@
     <title>ScapeRoom GDIE - Práctica 1</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
@@ -23,7 +25,7 @@
                         <video id="videoPlayer" src="../assets/videos/mp4/Video_4k.mp4">
                             <!--source src="../assets/videos/mp4/Video_4k.mp4" type="video/mp4"-->
                             <track id="trackEs" src="../media/subtitlesEsp.vtt" kind="subtitles" srclang="es" label="Español">
-                            <!--track id="trackEn" src="../media/subtitlesEng.vtt" kind="subtitles" srclang="en" label="English"-->
+                            <track id="trackEn" src="../media/subtitlesEng.vtt" kind="subtitles" srclang="en" label="English">
                             <track id="pistas" label="Metadatos" kind="metadata" src="../media/metadataEsp.vtt" default>                        
                         </video>
 
@@ -54,24 +56,51 @@
                                 </div>
 
                                 <div class="right-controls">
-                                    <select id="subtitles">
-                                        <option value="off">Sub OFF</option>
-                                        <option value="es">ES</option>
-                                        <option value="en">EN</option>
-                                    </select>
+                                    <div class="settings-wrapper" id="settingsWrapper">
+                                        <button id="settingsToggle" aria-label="Ajustes" title="Ajustes">
+                                            <img src="../assets/img/setting.svg" class="control-icon" alt="Ajustes">
+                                        </button>
 
-                                    <select id="audio">
-                                        <option value="off">Audio OFF</option>
-                                        <option value="es">ES</option>
-                                        <option value="en">EN</option>
-                                    </select>
+                                        <div id="settingsMenu" class="settings-menu" aria-hidden="true">
+                                            <div class="settings-item" data-section="subtitles">
+                                                <button class="settings-main-btn" type="button">
+                                                    <span>Subtitulos</span>
+                                                    <span class="settings-current" id="subtitlesCurrent">OFF</span>
+                                                </button>
+                                                <div class="settings-submenu">
+                                                    <button class="settings-option" type="button" data-setting="subtitles" data-value="off">Off</button>
+                                                    <button class="settings-option" type="button" data-setting="subtitles" data-value="es">Espanol</button>
+                                                    <button class="settings-option" type="button" data-setting="subtitles" data-value="en">English</button>
+                                                </div>
+                                            </div>
 
-                                    <select id="quality">
-                                        <option value="4k">4K</option>
-                                        <option value="1080p" selected>1080p</option>
-                                        <option value="720p">720p</option>
-                                        <option value="360p">360p</option>
-                                    </select>
+                                            <div class="settings-item" data-section="audio">
+                                                <button class="settings-main-btn" type="button">
+                                                    <span>Audio</span>
+                                                    <span class="settings-current" id="audioCurrent">OFF</span>
+                                                </button>
+                                                <div class="settings-submenu">
+                                                    <button class="settings-option" type="button" data-setting="audio" data-value="off">Off</button>
+                                                    <button class="settings-option" type="button" data-setting="audio" data-value="es">Espanol</button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-item" data-section="quality">
+                                                <button class="settings-main-btn" type="button">
+                                                    <span>Calidad</span>
+                                                    <span class="settings-current" id="qualityCurrent">1080p</span>
+                                                </button>
+                                                <div class="settings-submenu">
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="4k">4K</button>
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="1080p">1080p</button>
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="720p">720p</button>
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="360p">360p</button>
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="HLS">HLS</button>
+                                                    <button class="settings-option" type="button" data-setting="quality" data-value="DASH">DASH</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <button id="mute">
                                         <img src="../assets/img/volume.svg" id="muteIcon" class="control-icon" alt="Mute">
@@ -96,7 +125,14 @@
             </div>
 
             <div class="col-3">
-                <div class="grid-item item-nombre" id="roomName">Esperando...</div>
+                <div class="roomname-row">
+                    <label class="lang-toggle" aria-label="Idioma de capitulos y metadatos">
+                        <input type="checkbox" id="metadataLangToggle">
+                        <span class="lang-toggle-slider"></span>
+                        <span class="lang-current" id="metadataLangCurrent">ES</span>
+                    </label>
+                    <div class="grid-item item-nombre" id="roomName">Esperando...</div>
+                </div>
                 <div class="grid-item item-mapa">
                     <!-- Usar object permite que JS acceda al contenido interno del SVG -->
                     <object id="houseMap" data="../assets/img/houseMap.svg" type="image/svg+xml" style="width:100%; height:100%;"></object>
@@ -104,7 +140,12 @@
             </div>
 
             <div class="col-3">
-                <div class="grid-item item-capitulos">capitulos</div>
+                <div class="grid-item item-capitulos" id="chaptersPanel">
+                    <h3 id="chaptersTitle">Capitulos</h3>
+                    <div id="chaptersList" class="chapters-list">
+                        <p class="chapters-loading">Cargando capitulos...</p>
+                    </div>
+                </div>
             </div>
             
             </div>
@@ -116,5 +157,6 @@
     <script src="../js/main.js"></script>
     <script src="../js/player.js"></script>
     <script src="../js/semantic.js"></script>
+
 </body>
 </html>

@@ -4,9 +4,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizContent = document.getElementById('quizContent');
     const textContainer = document.getElementById('roomDescription');
     const nameContainer = document.getElementById('roomName');
+    const statusContainer = document.getElementById('videoStatus');
+    const metadataElement = document.getElementById('pistas');
 
     let metadataTrack;
     let quizLanzado = false;
+    let cueActualKey = null;
+    let feedbackTimer = null;
+
+    const PLACEHOLDERS = {
+        es: {
+            roomName: 'Esperando...',
+            roomDescription: 'Cargando información del recorrido...'
+        },
+        en: {
+            roomName: 'Waiting...',
+            roomDescription: 'Loading tour information...'
+        }
+    };
+
+    function hayCueActivo() {
+        return !!(metadataTrack && metadataTrack.activeCues && metadataTrack.activeCues.length > 0);
+    }
+
+    function actualizarPlaceholdersIdioma(lang) {
+        const idioma = lang === 'en' ? 'en' : 'es';
+        const destino = PLACEHOLDERS[idioma];
+
+        if (nameContainer) {
+            const textoActual = (nameContainer.innerText || '').trim();
+            const esPlaceholder = textoActual === PLACEHOLDERS.es.roomName || textoActual === PLACEHOLDERS.en.roomName || textoActual === '';
+            if (esPlaceholder || !hayCueActivo()) {
+                nameContainer.innerText = destino.roomName;
+            }
+        }
+
+        if (textContainer) {
+            const textoActual = (textContainer.innerText || '').trim();
+            const esPlaceholder = textoActual === PLACEHOLDERS.es.roomDescription || textoActual === PLACEHOLDERS.en.roomDescription || textoActual === '';
+            if (esPlaceholder || !hayCueActivo()) {
+                textContainer.innerText = destino.roomDescription;
+            }
+        }
+    }
+
+    function resetMetadataState() {
+        cueActualKey = null;
+        quizLanzado = false;
+        metadataTrack = Array.from(video.textTracks).find(t => t.kind === 'metadata');
+        if (metadataTrack) metadataTrack.mode = 'hidden';
+    }
+
+    function mostrarFeedback(mensaje) {
+        if (!statusContainer || !mensaje) return;
+
+        statusContainer.textContent = mensaje;
+        statusContainer.style.color = '#ffffff';
+
+        if (feedbackTimer) clearTimeout(feedbackTimer);
+        feedbackTimer = setTimeout(() => {
+            if (statusContainer.textContent === mensaje) {
+                statusContainer.textContent = '';
+                statusContainer.style.color = '';
+            }
+        }, 1300);
+    }
 
     // 1. Identificar la pista de metadatos cuando el video esté listo
     video.addEventListener('loadedmetadata', () => {
@@ -14,6 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (metadataTrack) {
             metadataTrack.mode = "hidden"; // Asegura que los datos se procesen en segundo plano
         }
+
+        const srcActual = (metadataElement?.getAttribute('src') || '').toLowerCase();
+        actualizarPlaceholdersIdioma(srcActual.includes('metadataeng') ? 'en' : 'es');
+    });
+
+    document.addEventListener('metadata-language-change', (event) => {
+        const lang = event?.detail?.lang === 'en' ? 'en' : 'es';
+        const nextSrc = lang === 'en' ? '../media/metadataEng.vtt' : '../media/metadataEsp.vtt';
+
+        if (!metadataElement || metadataElement.getAttribute('src') === nextSrc) return;
+
+        metadataElement.setAttribute('src', nextSrc);
+        actualizarPlaceholdersIdioma(lang);
+
+        // Forzamos reinicio suave de lectura de cues al cambiar de idioma
+        resetMetadataState();
     });
 
     // 2. Monitor de tiempo (Interfaz y Quiz)
@@ -25,6 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (activeCues.length > 0) {
             const cue = activeCues[0];
+            const nuevoCueKey = `${cue.startTime}-${cue.endTime}`;
+
+            if (cueActualKey !== nuevoCueKey) {
+                cueActualKey = nuevoCueKey;
+                quizLanzado = false;
+            }
+
             try {
                 const data = JSON.parse(cue.text);
 
@@ -51,6 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function mostrarQuizEnVideo(pool, restartTime) {
         const quiz = pool[Math.floor(Math.random() * pool.length)];
+        if (!quiz || !Array.isArray(quiz.opciones) || quiz.opciones.length === 0) return;
+
         overlay.style.display = 'flex'; 
         quizContent.innerHTML = `
             <h2 style="margin-bottom: 20px;">${quiz.pregunta}</h2>
@@ -58,27 +145,109 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${quiz.opciones.map((opt, i) => `
                     <button class="btn-quiz" 
                             style="padding: 10px 20px; cursor: pointer; background: white; border: none; border-radius: 5px; color: #2d5a27; font-weight: bold;"
-                            onclick="window.responder(${i}, ${quiz.correcta}, ${restartTime})">
-                        ${opt}
+                            data-index="${i}">
+                        ${obtenerTextoOpcion(opt)}
                     </button>
                 `).join('')}
             </div>
         `;
+
+        quizContent.querySelectorAll('.btn-quiz').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const seleccion = Number(btn.dataset.index);
+                window.responder(seleccion, quiz, restartTime);
+            });
+        });
+    }
+
+    function obtenerTextoOpcion(opcion) {
+        if (typeof opcion === 'string') return opcion;
+        if (opcion && typeof opcion === 'object') {
+            return opcion.texto || opcion.label || opcion.text || '';
+        }
+        return '';
+    }
+
+    function parsearTiempoDestino(valor) {
+        if (typeof valor === 'number' && Number.isFinite(valor)) return valor;
+        if (typeof valor === 'string') {
+            const limpio = valor.trim();
+            const numero = Number(limpio);
+            if (Number.isFinite(numero)) return numero;
+
+            const partes = limpio.split(':');
+            if (partes.length === 2 || partes.length === 3) {
+                const numeros = partes.map((p) => Number(p));
+                if (numeros.every((n) => Number.isFinite(n))) {
+                    if (partes.length === 2) {
+                        const [mm, ss] = numeros;
+                        return (mm * 60) + ss;
+                    }
+
+                    const [hh, mm, ss] = numeros;
+                    return (hh * 3600) + (mm * 60) + ss;
+                }
+            }
+        }
+        return null;
+    }
+
+    function resolverAccionRespuesta(quiz, seleccion) {
+        const opcionSeleccionada = Array.isArray(quiz.opciones) ? quiz.opciones[seleccion] : null;
+
+        if (opcionSeleccionada && typeof opcionSeleccionada === 'object') {
+            const accionOpcion = opcionSeleccionada.accion || opcionSeleccionada.action;
+            const destinoOpcion = parsearTiempoDestino(
+                opcionSeleccionada.destino ?? opcionSeleccionada.goto ?? opcionSeleccionada.time
+            );
+
+            if (accionOpcion === 'goto' && destinoOpcion !== null) return { tipo: 'goto', destino: destinoOpcion };
+            if (accionOpcion === 'repeat') return { tipo: 'repeat' };
+            if (accionOpcion === 'continue') return { tipo: 'continue' };
+        }
+
+        const esCorrecta = seleccion === quiz.correcta;
+        const regla = esCorrecta ? (quiz.onCorrect || quiz.on_correct) : (quiz.onWrong || quiz.on_wrong);
+
+        if (regla && typeof regla === 'object') {
+            const accionRegla = regla.accion || regla.action;
+            const destinoRegla = parsearTiempoDestino(regla.destino ?? regla.goto ?? regla.time);
+
+            if (accionRegla === 'goto' && destinoRegla !== null) return { tipo: 'goto', destino: destinoRegla };
+            if (accionRegla === 'repeat') return { tipo: 'repeat' };
+            if (accionRegla === 'continue') return { tipo: 'continue' };
+        }
+
+        return esCorrecta ? { tipo: 'continue' } : { tipo: 'repeat' };
     }
 
     // Definición global para los botones
-    window.responder = (seleccion, correcta, reinicio) => {
+    window.responder = (seleccion, quiz, reinicio) => {
         overlay.style.display = 'none';
-        if (seleccion === correcta) {
-            alert("¡Correcto!");
-            // Dejamos quizLanzado en true para que pueda seguir avanzando
-            video.play();
-        } else {
-            alert("Incorrecto. Repitiendo escena...");
-            quizLanzado = false; // IMPORTANTE: Permitir que el quiz se reactive al volver a pasar
+        const accion = resolverAccionRespuesta(quiz, seleccion);
+
+        if (accion.tipo === 'repeat') {
+            mostrarFeedback('Respuesta incorrecta. Repitiendo escena...');
+            quizLanzado = false;
             video.currentTime = reinicio;
             video.play();
+            return;
         }
+
+        if (accion.tipo === 'goto') {
+            mostrarFeedback('Saltando al siguiente capitulo...');
+            quizLanzado = false;
+            cueActualKey = null;
+            video.currentTime = accion.destino;
+            video.play();
+            return;
+        }
+
+        if (Number.isInteger(quiz.correcta)) {
+            mostrarFeedback(seleccion === quiz.correcta ? 'Correcto!' : 'Continuando...');
+        }
+
+        video.play();
     };
 
     function actualizarMapa(roomId) {

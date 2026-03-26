@@ -203,6 +203,126 @@ body {
 .item-mapa  { height: 68vh; }
 .item-capitulos { height: 82vh; } /* Suma visual para alinear */
 
+.roomname-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.roomname-row .item-nombre {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+#chaptersPanel {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 12px;
+    gap: 10px;
+}
+
+#chaptersPanel h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--verde-oscuro);
+    text-align: left;
+}
+
+.lang-toggle {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: var(--marron-oscuro);
+    user-select: none;
+}
+
+.lang-toggle input {
+    display: none;
+}
+
+.lang-toggle-slider {
+    width: 36px;
+    height: 18px;
+    border-radius: 999px;
+    background: #c6b9a1;
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+.lang-toggle-slider::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.lang-toggle input:checked + .lang-toggle-slider {
+    background: #2d5a27;
+}
+
+.lang-toggle input:checked + .lang-toggle-slider::after {
+    transform: translateX(18px);
+}
+
+.lang-current {
+    min-width: 28px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--verde-oscuro);
+    background: #efe8d3;
+    border-radius: 999px;
+    padding: 2px 7px;
+}
+
+.chapters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.chapters-loading {
+    font-size: 0.95rem;
+    color: var(--marron-oscuro);
+    font-weight: 600;
+}
+
+.chapter-btn {
+    width: 100%;
+    border: 1px solid var(--marron-oscuro);
+    background: #fffdf4;
+    color: var(--lila-texto);
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    line-height: 1.3;
+}
+
+.chapter-btn:hover {
+    background: #f2e6cc;
+}
+
+.chapter-btn.active {
+    background: #2d5a27;
+    border-color: #2d5a27;
+    color: #ffffff;
+}
+
 /* Estilo para imágenes SVG dentro de grid items */
 .item-mapa img {
     max-width: 100%;
@@ -302,16 +422,18 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 2px;
 }
 
 /* CONTROLES SOBRE EL VIDEO */
 .video-controls {
     position: absolute;
     bottom: 0;
+    left: 0;
     width: 100%;
     padding: 10px;
     background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    z-index: 20;
 }
 
 /* BARRA DE PROGRESO */
@@ -346,6 +468,104 @@ body {
     gap: 10px;
 }
 
+.settings-wrapper {
+    position: relative;
+}
+
+#settingsToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.settings-menu {
+    position: absolute;
+    right: 0;
+    bottom: 38px;
+    min-width: 190px;
+    background: rgba(15, 20, 18, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 80;
+}
+
+.settings-wrapper.open .settings-menu {
+    display: flex;
+}
+
+.settings-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.settings-item.open .settings-main-btn {
+    border-color: rgba(133, 193, 118, 0.62);
+    background: rgba(133, 193, 118, 0.16);
+}
+
+.settings-main-btn {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #f1f1f1;
+    font-size: 0.82rem;
+    padding: 7px 8px;
+    cursor: pointer;
+}
+
+.settings-current {
+    font-weight: 700;
+    color: #d6eecf;
+}
+
+.settings-submenu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 2px;
+    margin-left: 4px;
+    padding: 6px;
+    background: rgba(238, 245, 236, 0.12);
+    border: 1px solid rgba(228, 243, 222, 0.45);
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.settings-item.open .settings-submenu {
+    display: flex;
+}
+
+.settings-option {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #f1f1f1;
+    font-size: 0.78rem;
+    text-align: left;
+    padding: 6px 7px;
+    cursor: pointer;
+}
+
+.settings-option:hover,
+.settings-option.active {
+    background: rgba(133, 193, 118, 0.25);
+    border-color: rgba(133, 193, 118, 0.5);
+}
+
 /* BOTONES */
 .video-controls button {
     background: none;
@@ -353,13 +573,6 @@ body {
     color: white;
     font-size: 16px;
     cursor: pointer;
-}
-
-.video-controls select {
-    background: rgba(0,0,0,0.6);
-    border: none;
-    color: white;
-    padding: 4px;
 }
 
 /* TIEMPO */
@@ -371,10 +584,12 @@ body {
 .video-controls {
     opacity: 0;
     transition: opacity 0.3s;
+    pointer-events: none;
 }
 
 .video-player:hover .video-controls {
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Asegura que el contenedor ocupe todo el ancho en fullscreen */
@@ -412,8 +627,19 @@ body {
 
 /* Mejora la visibilidad de los controles en Fullscreen */
 .video-player:fullscreen .video-controls {
-    bottom: 20px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
     z-index: 2147483647;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.video-player:fullscreen.fs-ui-visible .video-controls {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .item-texto {
