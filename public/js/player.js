@@ -376,46 +376,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             currentQuality = "HLS";
-        } 
-        else if (quality === "AUTO") {
-        //    console.log("Cambiando a calidad automática (DASH si soportado, sino HLS, sino MP4)...");
-        //    if (dashjs.MediaPlayer.isSupported()) {
-        //        console.log("Inicializando reproductor MPEG-DASH...");
-        //        // Configuración MPEG-DASH
-        //        dashPlayer = dashjs.MediaPlayer().create();
-        //        dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
-        //        dashPlayer.seek(currentTime);
-        //        currentQuality = "DASH";
-        //    } else if (Hls.isSupported()) {
-        //        // Configuración HLS
-        //        hlsPlayer = new Hls();
-        //        hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
-        //        hlsPlayer.attachMedia(video);
-        //        hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-        //            video.currentTime = currentTime;
-        //            if (!isPaused) video.play();
-        //        });
-        //        currentQuality = "HLS";
-        //    } else {
-        //        console.warn("Ningún reproductor adaptativo soportado. Reproduciendo MP4 progresivo.");
-        //        video.src = `../assets/videos/mp4/Video_720p.mp4`;
-        //        video.load();
-        //        video.onloadedmetadata = () => {
-        //            video.currentTime = currentTime;
-        //            if (!isPaused) video.play();
-        //            video.onloadedmetadata = null;
-        //        };
-        //        currentQuality = "720p";
-        //    }
-            console.log("Modo auto aun no no implementado. Reproduciendo MP4 progresivo por defecto...");
-            currentQuality = "720p";
-            video.src = `../assets/videos/mp4/Video_720p.mp4`;
-            video.load();
-            video.onloadedmetadata = () => {
-                video.currentTime = currentTime;
-                if (!isPaused) video.play();
-                video.onloadedmetadata = null;
-            };
         }
         else {
             console.log("Cambiando a calidad progresiva (MP4)...");
