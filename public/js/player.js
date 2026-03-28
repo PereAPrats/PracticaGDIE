@@ -405,7 +405,11 @@ document.addEventListener("DOMContentLoaded", () => {
             // Configuración MPEG-DASH
             dashPlayer = dashjs.MediaPlayer().create();
             dashPlayer.initialize(video, "/assets/videos/dash/manifest.mpd", true);
-            dashPlayer.seek(currentTime);
+            // Esperamos a que el stream esté listo para saltar al tiempo correcto
+            dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+                dashPlayer.seek(currentTime);
+                if (!isPaused) video.play();
+            });
             currentQuality = "DASH";
         } 
         else if (quality === "HLS") {
