@@ -186,6 +186,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Función para cargar y limpiar los tracks de subtítulos (necesario para HLS)
+    const attachTracksToVideo = async () => {
+        try {
+            // Cargar subtítulos en español
+            const trackEs = document.getElementById("trackEs");
+            if (trackEs && trackEs.src && !trackEs.src.includes("blob:")) {
+                await loadCleanVTTSubtitles(trackEs, "/media/subtitlesEsp.vtt");
+            }
+
+            // Cargar subtítulos en inglés
+            const trackEn = document.getElementById("trackEn");
+            if (trackEn && trackEn.src && !trackEn.src.includes("blob:")) {
+                await loadCleanVTTSubtitles(trackEn, "/media/subtitlesEng.vtt");
+            }
+
+            // NO TOCAR el metadata track - dejar que cargue naturalmente desde el HTML
+            // El track está definido en practica1.html y se cargará automáticamente
+
+            // Aplicar el idioma de subtítulos actual DESPUÉS de cargar
+            setSubtitleLanguage(currentSubtitleLang);
+            console.log("Tracks de subtítulos cargados correctamente");
+        } catch (error) {
+            console.error("Error cargando tracks:", error);
+        }
+    };
+
     const renderChapterButtons = (chapters) => {
         if (!chaptersList) return;
 
@@ -212,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const getChapterFileByLang = (lang) => {
-        return lang === "en" ? "../media/chaptersEng.vtt" : "../media/chaptersEsp.vtt";
+        return lang === "en" ? "/media/chaptersEng.vtt" : "/media/chaptersEsp.vtt";
     };
 
     const detectMetadataLangFromSrc = () => {
@@ -277,36 +303,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Configuración de rutas de iconos
     const paths = {
-        play: "../assets/img/play.svg",
-        pause: "../assets/img/pause.svg",
-        volumeUp: "../assets/img/volume.svg",
-        volumeMute: "../assets/img/mute.svg",
-        fullscreen: "../assets/img/expand.svg",
-        fullscreenExit: "../assets/img/minim.svg"
+        play: "/assets/img/play.svg",
+        pause: "/assets/img/pause.svg",
+        volumeUp: "/assets/img/volume.svg",
+        volumeMute: "/assets/img/mute.svg",
+        fullscreen: "/assets/img/expand.svg",
+        fullscreenExit: "/assets/img/minim.svg"
     };
 
     const setSubtitleLanguage = (lang) => {
         currentSubtitleLang = lang;
 
-        for (let i = 0; i < video.textTracks.length; i++) {
-            const track = video.textTracks[i];
-            
-            if (track.kind === "subtitles") {
-                // "showing" para verlos, "disabled" para ocultarlos
-                track.mode = (track.language === lang) ? "showing" : "disabled";
-            }
-        }
-
+        // 1. Actualizar la UI
         if (subtitlesCurrent) {
             subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
         }
 
-        // Si selecciona inglés, cargar y limpiar subtítulos en inglés
-        if (lang === "en") {
-            const trackEn = document.getElementById("trackEn");
-            if (trackEn && !trackEn.src?.includes("blob:")) {
-                loadCleanVTTSubtitles(trackEn, "../media/subtitlesEng.vtt");
+        // 2. Si el idioma es OFF, apagamos todo y salimos
+        if (lang === "off") {
+            for (let i = 0; i < video.textTracks.length; i++) {
+                video.textTracks[i].mode = "disabled";
             }
+            return;
+        }
+
+        // 3. Forzar recarga del VTT para limpiar bloqueos de HLS/DASH
+        const trackId = lang === "es" ? "trackEs" : "trackEn";
+        const vttPath = lang === "es" ? "/media/subtitlesEsp.vtt" : "/media/subtitlesEng.vtt";
+        const trackElement = document.getElementById(trackId);
+
+        if (trackElement) {
+            // Al cargar un nuevo Blob, el navegador refresca el renderizado de subtítulos
+            loadCleanVTTSubtitles(trackElement, vttPath).then(() => {
+                // Una vez cargado el blob, activamos la pista
+                for (let i = 0; i < video.textTracks.length; i++) {
+                    const t = video.textTracks[i];
+                    // Comparamos por idioma o por label para asegurar
+                    if (t.language === lang || t.label.toLowerCase().includes(lang)) {
+                        t.mode = "showing";
+                    } else {
+                        t.mode = "disabled";
+                    }
+                }
+            });
         }
     };
 
@@ -342,8 +381,14 @@ document.addEventListener("DOMContentLoaded", () => {
             hlsPlayer = null;
         }
         video.pause();
-        video.removeAttribute('src'); // Limpiamos el src de MP4
-        video.load()
+        
+        // Limpiar modos de tracks para evitar conflictos de memoria
+        for (let i = 0; i < video.textTracks.length; i++) {
+            video.textTracks[i].mode = "disabled";
+        }
+
+        video.removeAttribute('src');
+        video.load();
     };
 
     const setVideoQuality = (quality) => {
@@ -359,8 +404,12 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Inicializando reproductor MPEG-DASH...");
             // Configuración MPEG-DASH
             dashPlayer = dashjs.MediaPlayer().create();
-            dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
-            dashPlayer.seek(currentTime);
+            dashPlayer.initialize(video, "/assets/videos/dash/manifest.mpd", true);
+            // Esperamos a que el stream esté listo para saltar al tiempo correcto
+            dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+                dashPlayer.seek(currentTime);
+                if (!isPaused) video.play();
+            });
             currentQuality = "DASH";
         } 
         else if (quality === "HLS") {
@@ -368,11 +417,14 @@ document.addEventListener("DOMContentLoaded", () => {
             // Configuración HLS
             if (Hls.isSupported()) {
                 hlsPlayer = new Hls();
-                hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
+                hlsPlayer.loadSource("/assets/videos/hls/master.m3u8");
                 hlsPlayer.attachMedia(video);
-                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, async () => {
                     video.currentTime = currentTime;
-                    if (!isPaused) video.play();
+                    if (!isPaused) await video.play();
+                    // Cargar los tracks de subtítulos después de que el manifest se parsee
+                    await attachTracksToVideo();
+                    setSubtitleLanguage(currentSubtitleLang);
                 });
             }
             currentQuality = "HLS";
@@ -381,12 +433,14 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Cambiando a calidad progresiva (MP4)...");
             // Modo Progresivo (MP4 normal)
             currentQuality = quality;
-            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+            video.src = `/assets/videos/mp4/Video_${quality}.mp4`;
             video.load();
-            video.onloadedmetadata = () => {
+            video.onloadedmetadata = async () => {
                 video.currentTime = currentTime;
                 if (!isPaused) video.play();
                 video.onloadedmetadata = null;
+                // Recargar los tracks después de cambiar a MP4
+                await attachTracksToVideo();
             };
         }
 
@@ -395,21 +449,46 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const closeSettingsMenu = () => {
+    const setSettingsMenuState = (isOpen, options = {}) => {
         if (!settingsWrapper || !settingsMenu) return;
-        settingsWrapper.classList.remove("open");
-        settingsMenu.setAttribute("aria-hidden", "true");
-        settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
-            item.classList.remove("open");
-        });
+
+        const { restoreFocus = true } = options;
+        const activeElement = document.activeElement;
+        const focusedInsideMenu = !!(activeElement && settingsMenu.contains(activeElement));
+
+        if (!isOpen && restoreFocus && focusedInsideMenu) {
+            settingsToggle?.focus();
+        }
+
+        settingsWrapper.classList.toggle("open", isOpen);
+        settingsMenu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+        if (settingsToggle) {
+            settingsToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        if (isOpen) {
+            settingsMenu.removeAttribute("inert");
+        } else {
+            settingsMenu.setAttribute("inert", "");
+            settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
+                item.classList.remove("open");
+            });
+        }
+    };
+
+    const closeSettingsMenu = (options = {}) => {
+        setSettingsMenuState(false, options);
     };
 
     const toggleSettingsMenu = () => {
         if (!settingsWrapper || !settingsMenu) return;
         const willOpen = !settingsWrapper.classList.contains("open");
-        settingsWrapper.classList.toggle("open", willOpen);
-        settingsMenu.setAttribute("aria-hidden", willOpen ? "false" : "true");
+        setSettingsMenuState(willOpen);
     };
+
+    // Sync initial accessibility state with markup.
+    setSettingsMenuState(false, { restoreFocus: false });
 
     if (settingsToggle) {
         settingsToggle.addEventListener("click", (event) => {
@@ -454,6 +533,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("click", () => {
         closeSettingsMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSettingsMenu();
+        }
     });
 
     // --- CONTROL DE REPRODUCCIÓN ---
@@ -600,11 +685,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyMetadataLanguage(initialLang);
     loadChapters(initialLang);
-        // Cargar subtítulos limpios (sin números de ID)
-    if (trackEs) {
-        const subtitlePath = trackEs.getAttribute("src");
-        if (subtitlePath) {
-            loadCleanVTTSubtitles(trackEs, subtitlePath);
-        }
-    }
+
+    // Cargar subtítulos limpios (sin números de ID) para ambos idiomas
+    attachTracksToVideo();
 });
