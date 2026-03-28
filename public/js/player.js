@@ -314,25 +314,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const setSubtitleLanguage = (lang) => {
         currentSubtitleLang = lang;
 
-        for (let i = 0; i < video.textTracks.length; i++) {
-            const track = video.textTracks[i];
-            
-            if (track.kind === "subtitles") {
-                // "showing" para verlos, "disabled" para ocultarlos
-                track.mode = (track.language === lang) ? "showing" : "disabled";
-            }
-        }
-
+        // 1. Actualizar la UI
         if (subtitlesCurrent) {
             subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
         }
 
-        // Si selecciona inglés, cargar y limpiar subtítulos en inglés
-        if (lang === "en") {
-            const trackEn = document.getElementById("trackEn");
-            if (trackEn && !trackEn.src?.includes("blob:")) {
-                loadCleanVTTSubtitles(trackEn, "/media/subtitlesEng.vtt");
+        // 2. Si el idioma es OFF, apagamos todo y salimos
+        if (lang === "off") {
+            for (let i = 0; i < video.textTracks.length; i++) {
+                video.textTracks[i].mode = "disabled";
             }
+            return;
+        }
+
+        // 3. Forzar recarga del VTT para limpiar bloqueos de HLS/DASH
+        const trackId = lang === "es" ? "trackEs" : "trackEn";
+        const vttPath = lang === "es" ? "/media/subtitlesEsp.vtt" : "/media/subtitlesEng.vtt";
+        const trackElement = document.getElementById(trackId);
+
+        if (trackElement) {
+            // Al cargar un nuevo Blob, el navegador refresca el renderizado de subtítulos
+            loadCleanVTTSubtitles(trackElement, vttPath).then(() => {
+                // Una vez cargado el blob, activamos la pista
+                for (let i = 0; i < video.textTracks.length; i++) {
+                    const t = video.textTracks[i];
+                    // Comparamos por idioma o por label para asegurar
+                    if (t.language === lang || t.label.toLowerCase().includes(lang)) {
+                        t.mode = "showing";
+                    } else {
+                        t.mode = "disabled";
+                    }
+                }
+            });
         }
     };
 
@@ -368,8 +381,14 @@ document.addEventListener("DOMContentLoaded", () => {
             hlsPlayer = null;
         }
         video.pause();
-        video.removeAttribute('src'); // Limpiamos el src de MP4
-        video.load()
+        
+        // Limpiar modos de tracks para evitar conflictos de memoria
+        for (let i = 0; i < video.textTracks.length; i++) {
+            video.textTracks[i].mode = "disabled";
+        }
+
+        video.removeAttribute('src');
+        video.load();
     };
 
     const setVideoQuality = (quality) => {
@@ -398,9 +417,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 hlsPlayer.attachMedia(video);
                 hlsPlayer.on(Hls.Events.MANIFEST_PARSED, async () => {
                     video.currentTime = currentTime;
-                    if (!isPaused) video.play();
+                    if (!isPaused) await video.play();
                     // Cargar los tracks de subtítulos después de que el manifest se parsee
                     await attachTracksToVideo();
+                    setSubtitleLanguage(currentSubtitleLang);
                 });
             }
             currentQuality = "HLS";
