@@ -186,6 +186,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Función para cargar y limpiar los tracks de subtítulos (necesario para HLS)
+    const attachTracksToVideo = async () => {
+        try {
+            // Cargar subtítulos en español
+            const trackEs = document.getElementById("trackEs");
+            if (trackEs && trackEs.src && !trackEs.src.includes("blob:")) {
+                await loadCleanVTTSubtitles(trackEs, "/media/subtitlesEsp.vtt");
+            }
+
+            // Cargar subtítulos en inglés
+            const trackEn = document.getElementById("trackEn");
+            if (trackEn && trackEn.src && !trackEn.src.includes("blob:")) {
+                await loadCleanVTTSubtitles(trackEn, "/media/subtitlesEng.vtt");
+            }
+
+            // NO TOCAR el metadata track - dejar que cargue naturalmente desde el HTML
+            // El track está definido en practica1.html y se cargará automáticamente
+
+            // Aplicar el idioma de subtítulos actual DESPUÉS de cargar
+            setSubtitleLanguage(currentSubtitleLang);
+            console.log("Tracks de subtítulos cargados correctamente");
+        } catch (error) {
+            console.error("Error cargando tracks:", error);
+        }
+    };
+
     const renderChapterButtons = (chapters) => {
         if (!chaptersList) return;
 
@@ -212,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const getChapterFileByLang = (lang) => {
-        return lang === "en" ? "../media/chaptersEng.vtt" : "../media/chaptersEsp.vtt";
+        return lang === "en" ? "/media/chaptersEng.vtt" : "/media/chaptersEsp.vtt";
     };
 
     const detectMetadataLangFromSrc = () => {
@@ -277,12 +303,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Configuración de rutas de iconos
     const paths = {
-        play: "../assets/img/play.svg",
-        pause: "../assets/img/pause.svg",
-        volumeUp: "../assets/img/volume.svg",
-        volumeMute: "../assets/img/mute.svg",
-        fullscreen: "../assets/img/expand.svg",
-        fullscreenExit: "../assets/img/minim.svg"
+        play: "/assets/img/play.svg",
+        pause: "/assets/img/pause.svg",
+        volumeUp: "/assets/img/volume.svg",
+        volumeMute: "/assets/img/mute.svg",
+        fullscreen: "/assets/img/expand.svg",
+        fullscreenExit: "/assets/img/minim.svg"
     };
 
     const setSubtitleLanguage = (lang) => {
@@ -305,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (lang === "en") {
             const trackEn = document.getElementById("trackEn");
             if (trackEn && !trackEn.src?.includes("blob:")) {
-                loadCleanVTTSubtitles(trackEn, "../media/subtitlesEng.vtt");
+                loadCleanVTTSubtitles(trackEn, "/media/subtitlesEng.vtt");
             }
         }
     };
@@ -359,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Inicializando reproductor MPEG-DASH...");
             // Configuración MPEG-DASH
             dashPlayer = dashjs.MediaPlayer().create();
-            dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
+            dashPlayer.initialize(video, "/assets/videos/dash/manifest.mpd", true);
             dashPlayer.seek(currentTime);
             currentQuality = "DASH";
         } 
@@ -368,65 +394,29 @@ document.addEventListener("DOMContentLoaded", () => {
             // Configuración HLS
             if (Hls.isSupported()) {
                 hlsPlayer = new Hls();
-                hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
+                hlsPlayer.loadSource("/assets/videos/hls/master.m3u8");
                 hlsPlayer.attachMedia(video);
-                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, async () => {
                     video.currentTime = currentTime;
                     if (!isPaused) video.play();
+                    // Cargar los tracks de subtítulos después de que el manifest se parsee
+                    await attachTracksToVideo();
                 });
             }
             currentQuality = "HLS";
-        } 
-        else if (quality === "AUTO") {
-        //    console.log("Cambiando a calidad automática (DASH si soportado, sino HLS, sino MP4)...");
-        //    if (dashjs.MediaPlayer.isSupported()) {
-        //        console.log("Inicializando reproductor MPEG-DASH...");
-        //        // Configuración MPEG-DASH
-        //        dashPlayer = dashjs.MediaPlayer().create();
-        //        dashPlayer.initialize(video, "../assets/videos/dash/manifest.mpd", true);
-        //        dashPlayer.seek(currentTime);
-        //        currentQuality = "DASH";
-        //    } else if (Hls.isSupported()) {
-        //        // Configuración HLS
-        //        hlsPlayer = new Hls();
-        //        hlsPlayer.loadSource("../assets/videos/hls/master.m3u8");
-        //        hlsPlayer.attachMedia(video);
-        //        hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-        //            video.currentTime = currentTime;
-        //            if (!isPaused) video.play();
-        //        });
-        //        currentQuality = "HLS";
-        //    } else {
-        //        console.warn("Ningún reproductor adaptativo soportado. Reproduciendo MP4 progresivo.");
-        //        video.src = `../assets/videos/mp4/Video_720p.mp4`;
-        //        video.load();
-        //        video.onloadedmetadata = () => {
-        //            video.currentTime = currentTime;
-        //            if (!isPaused) video.play();
-        //            video.onloadedmetadata = null;
-        //        };
-        //        currentQuality = "720p";
-        //    }
-            console.log("Modo auto aun no no implementado. Reproduciendo MP4 progresivo por defecto...");
-            currentQuality = "720p";
-            video.src = `../assets/videos/mp4/Video_720p.mp4`;
-            video.load();
-            video.onloadedmetadata = () => {
-                video.currentTime = currentTime;
-                if (!isPaused) video.play();
-                video.onloadedmetadata = null;
-            };
         }
         else {
             console.log("Cambiando a calidad progresiva (MP4)...");
             // Modo Progresivo (MP4 normal)
             currentQuality = quality;
-            video.src = `../assets/videos/mp4/Video_${quality}.mp4`;
+            video.src = `/assets/videos/mp4/Video_${quality}.mp4`;
             video.load();
-            video.onloadedmetadata = () => {
+            video.onloadedmetadata = async () => {
                 video.currentTime = currentTime;
                 if (!isPaused) video.play();
                 video.onloadedmetadata = null;
+                // Recargar los tracks después de cambiar a MP4
+                await attachTracksToVideo();
             };
         }
 
@@ -435,21 +425,46 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const closeSettingsMenu = () => {
+    const setSettingsMenuState = (isOpen, options = {}) => {
         if (!settingsWrapper || !settingsMenu) return;
-        settingsWrapper.classList.remove("open");
-        settingsMenu.setAttribute("aria-hidden", "true");
-        settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
-            item.classList.remove("open");
-        });
+
+        const { restoreFocus = true } = options;
+        const activeElement = document.activeElement;
+        const focusedInsideMenu = !!(activeElement && settingsMenu.contains(activeElement));
+
+        if (!isOpen && restoreFocus && focusedInsideMenu) {
+            settingsToggle?.focus();
+        }
+
+        settingsWrapper.classList.toggle("open", isOpen);
+        settingsMenu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+        if (settingsToggle) {
+            settingsToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        if (isOpen) {
+            settingsMenu.removeAttribute("inert");
+        } else {
+            settingsMenu.setAttribute("inert", "");
+            settingsMenu.querySelectorAll(".settings-item").forEach((item) => {
+                item.classList.remove("open");
+            });
+        }
+    };
+
+    const closeSettingsMenu = (options = {}) => {
+        setSettingsMenuState(false, options);
     };
 
     const toggleSettingsMenu = () => {
         if (!settingsWrapper || !settingsMenu) return;
         const willOpen = !settingsWrapper.classList.contains("open");
-        settingsWrapper.classList.toggle("open", willOpen);
-        settingsMenu.setAttribute("aria-hidden", willOpen ? "false" : "true");
+        setSettingsMenuState(willOpen);
     };
+
+    // Sync initial accessibility state with markup.
+    setSettingsMenuState(false, { restoreFocus: false });
 
     if (settingsToggle) {
         settingsToggle.addEventListener("click", (event) => {
@@ -494,6 +509,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("click", () => {
         closeSettingsMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSettingsMenu();
+        }
     });
 
     // --- CONTROL DE REPRODUCCIÓN ---
@@ -640,11 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyMetadataLanguage(initialLang);
     loadChapters(initialLang);
-        // Cargar subtítulos limpios (sin números de ID)
-    if (trackEs) {
-        const subtitlePath = trackEs.getAttribute("src");
-        if (subtitlePath) {
-            loadCleanVTTSubtitles(trackEs, subtitlePath);
-        }
-    }
+
+    // Cargar subtítulos limpios (sin números de ID) para ambos idiomas
+    attachTracksToVideo();
 });

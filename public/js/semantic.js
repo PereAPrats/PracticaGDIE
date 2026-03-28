@@ -7,10 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusContainer = document.getElementById('videoStatus');
     const metadataElement = document.getElementById('pistas');
 
-    let metadataTrack;
+    let metadataCues = []; // Almacenar metadata parseado manualmente
     let quizLanzado = false;
     let cueActualKey = null;
     let feedbackTimer = null;
+    let currentMetadataLang = 'es';
 
     const PLACEHOLDERS = {
         es: {
@@ -23,8 +24,90 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Parsear VTT manualmente
+    function parseMetadataVTT(vttText) {
+        const lines = vttText.split('\n');
+        const cues = [];
+        let i = 0;
+
+        while (i < lines.length) {
+            const line = lines[i].trim();
+
+            // Buscar línea con timestamp
+            if (line.includes('-->')) {
+                const [startStr, endStr] = line.split('-->').map(t => t.trim());
+                const startTime = parseTimeToSeconds(startStr);
+                const endTime = parseTimeToSeconds(endStr);
+
+                i++;
+                let jsonText = '';
+                let braceCount = 0;
+
+                // Leer el JSON completo
+                while (i < lines.length) {
+                    const jsonLine = lines[i];
+                    jsonText += jsonLine + '\n';
+
+                    braceCount += (jsonLine.match(/{/g) || []).length;
+                    braceCount -= (jsonLine.match(/}/g) || []).length;
+
+                    i++;
+                    // Terminar cuando cerramos todas las braces
+                    if (braceCount === 0 && jsonText.includes('{')) {
+                        break;
+                    }
+                }
+
+                try {
+                    const data = JSON.parse(jsonText);
+                    cues.push({ startTime, endTime, data });
+                    console.log(`✓ Cue parseado: ${startTime}s - ${endTime}s`);
+                } catch (e) {
+                    console.error('Error parseando JSON:', jsonText.substring(0, 50), e);
+                }
+            } else {
+                i++;
+            }
+        }
+
+        return cues;
+    }
+
+    function parseTimeToSeconds(timeStr) {
+        const parts = timeStr.split(':');
+        if (parts.length === 3) {
+            const [hh, mm, ss] = parts.map(Number);
+            return hh * 3600 + mm * 60 + ss;
+        } else if (parts.length === 2) {
+            const [mm, ss] = parts.map(Number);
+            return mm * 60 + ss;
+        }
+        return 0;
+    }
+
+    // Cargar metadata VTT
+    async function loadMetadata(lang = 'es') {
+        currentMetadataLang = lang;
+        const file = lang === 'en' ? '/media/metadataEng.vtt' : '/media/metadataEsp.vtt';
+
+        try {
+            const response = await fetch(file, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const vttText = await response.text();
+            metadataCues = parseMetadataVTT(vttText);
+            console.log(`✓ Metadata cargado en ${lang}: ${metadataCues.length} cues`);
+
+            return true;
+        } catch (error) {
+            console.error(`❌ Error cargando metadata ${lang}:`, error);
+            metadataCues = [];
+            return false;
+        }
+    }
+
     function hayCueActivo() {
-        return !!(metadataTrack && metadataTrack.activeCues && metadataTrack.activeCues.length > 0);
+        return metadataCues.some(c => video.currentTime >= c.startTime && video.currentTime < c.endTime);
     }
 
     function actualizarPlaceholdersIdioma(lang) {
@@ -48,13 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function resetMetadataState() {
-        cueActualKey = null;
-        quizLanzado = false;
-        metadataTrack = Array.from(video.textTracks).find(t => t.kind === 'metadata');
-        if (metadataTrack) metadataTrack.mode = 'hidden';
-    }
-
     function mostrarFeedback(mensaje) {
         if (!statusContainer || !mensaje) return;
 
@@ -70,66 +146,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1300);
     }
 
-    // 1. Identificar la pista de metadatos cuando el video esté listo
+    // Cargar metadata al inicio
     video.addEventListener('loadedmetadata', () => {
-        metadataTrack = Array.from(video.textTracks).find(t => t.kind === 'metadata');
-        if (metadataTrack) {
-            metadataTrack.mode = "hidden"; // Asegura que los datos se procesen en segundo plano
-        }
-
-        const srcActual = (metadataElement?.getAttribute('src') || '').toLowerCase();
-        actualizarPlaceholdersIdioma(srcActual.includes('metadataeng') ? 'en' : 'es');
+        console.log('🎥 loadedmetadata disparado');
+        loadMetadata('es');
+        actualizarPlaceholdersIdioma('es');
     });
 
+    // Cambio de idioma
     document.addEventListener('metadata-language-change', (event) => {
         const lang = event?.detail?.lang === 'en' ? 'en' : 'es';
-        const nextSrc = lang === 'en' ? '../media/metadataEng.vtt' : '../media/metadataEsp.vtt';
-
-        if (!metadataElement || metadataElement.getAttribute('src') === nextSrc) return;
-
-        metadataElement.setAttribute('src', nextSrc);
+        console.log(`🔄 Cambiando metadata a ${lang}`);
+        loadMetadata(lang);
         actualizarPlaceholdersIdioma(lang);
-
-        // Forzamos reinicio suave de lectura de cues al cambiar de idioma
-        resetMetadataState();
     });
 
     // 2. Monitor de tiempo (Interfaz y Quiz)
     video.addEventListener('timeupdate', () => {
-        // PROTECCIÓN: Si metadataTrack aún no existe, no hacemos nada
-        if (!metadataTrack || !metadataTrack.activeCues) return;
+        // Buscar cue activo en el array parseado
+        const activeCue = metadataCues.find(c => video.currentTime >= c.startTime && video.currentTime < c.endTime);
 
-        const activeCues = metadataTrack.activeCues;
-        
-        if (activeCues.length > 0) {
-            const cue = activeCues[0];
-            const nuevoCueKey = `${cue.startTime}-${cue.endTime}`;
+        if (!activeCue) return;
 
-            if (cueActualKey !== nuevoCueKey) {
-                cueActualKey = nuevoCueKey;
-                quizLanzado = false;
-            }
+        const nuevoCueKey = `${activeCue.startTime}-${activeCue.endTime}`;
 
-            try {
-                const data = JSON.parse(cue.text);
+        if (cueActualKey !== nuevoCueKey) {
+            cueActualKey = nuevoCueKey;
+            quizLanzado = false;
+        }
 
-                // Actualizar Interfaz
-                if (nameContainer) nameContainer.innerText = data.Name || data.Nombre || "";
-                if (textContainer) textContainer.innerText = data.Descripcion || "";
-                if (data.Room) actualizarMapa(data.Room);
+        const data = activeCue.data;
 
-                // Lógica del Quiz
-                const pool = data.quiz_pool || data.quizz_pool;
-                if (pool && pool.length > 0) {
-                    // Si llegamos al final de la habitación y no hemos preguntado
-                    if (video.currentTime >= cue.endTime - 0.5 && !quizLanzado) {
-                        quizLanzado = true;
-                        video.pause();
-                        mostrarQuizEnVideo(pool, cue.startTime);
-                    }
-                }
-            } catch (e) {
-                console.error("Error al parsear JSON:", e);
+        // Actualizar Interfaz
+        if (nameContainer) nameContainer.innerText = data.Name || data.Nombre || "";
+        if (textContainer) textContainer.innerText = data.Descripcion || "";
+        if (data.Room) actualizarMapa(data.Room);
+
+        // Lógica del Quiz
+        const pool = data.quiz_pool || data.quizz_pool;
+        if (pool && pool.length > 0) {
+            // Si llegamos al final de la habitación y no hemos preguntado
+            if (video.currentTime >= activeCue.endTime - 0.5 && !quizLanzado) {
+                quizLanzado = true;
+                video.pause();
+                mostrarQuizEnVideo(pool, activeCue.startTime);
             }
         }
     });
