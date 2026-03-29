@@ -5,8 +5,44 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = 3000;
+const ENABLE_QOS_SUMMARY_LOGS = process.env.ENABLE_QOS_SUMMARY_LOGS === '1';
+
+const TRUSTED_LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
+const isTrustworthyOrigin = (req) => {
+  const host = String(req.hostname || '').toLowerCase();
+  if (TRUSTED_LOOPBACK_HOSTS.has(host)) {
+    return true;
+  }
+
+  if (req.secure) {
+    return true;
+  }
+
+  const originHeader = req.get('origin');
+  if (!originHeader) {
+    return false;
+  }
+
+  try {
+    const origin = new URL(originHeader);
+    return origin.protocol === 'https:' || TRUSTED_LOOPBACK_HOSTS.has(origin.hostname.toLowerCase());
+  } catch (_error) {
+    return false;
+  }
+};
 
 app.use(express.json({ limit: '256kb' }));
+
+// Attribution Reporting solo se permite en orígenes de confianza (HTTPS o loopback local).
+app.use((req, res, next) => {
+  if (isTrustworthyOrigin(req)) {
+    res.setHeader('Permissions-Policy', 'attribution-reporting=(self)');
+  } else {
+    res.setHeader('Permissions-Policy', 'attribution-reporting=()');
+  }
+  next();
+});
 
 const qosStats = {
   totalRequests: 0,
@@ -98,6 +134,8 @@ app.get('/api/metrics', (_req, res) => {
 });
 
 setInterval(() => {
+  if (!ENABLE_QOS_SUMMARY_LOGS) return;
+
   const p50 = percentile(qosStats.latencyMs, 50);
   const p95 = percentile(qosStats.latencyMs, 95);
   const p99 = percentile(qosStats.latencyMs, 99);

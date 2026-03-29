@@ -24,6 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastUpdateendTelemetryTs = 0;
     let lastBufferedTelemetryTs = 0;
     let lastBufferedSignature = "";
+    const SUBTITLE_PATHS = {
+        es: "/media/subtitlesEsp.vtt",
+        en: "/media/subtitlesEng.vtt"
+    };
+    const withSessionId = (path) => (appendSessionId ? appendSessionId(path) : path);
 
     // Limitamos la frecuencia de eventos de alto volumen para que los logs sean legibles.
     const emitMseUpdateend = (engine, source) => {
@@ -175,11 +180,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const attachTracksToVideo = async () => {
         try {
             if (trackEs) {
-                await loadCleanVTTSubtitles(trackEs, appendSessionId ? appendSessionId("/media/subtitlesEsp.vtt") : "/media/subtitlesEsp.vtt");
+                await loadCleanVTTSubtitles(trackEs, withSessionId(SUBTITLE_PATHS.es));
             }
 
             if (trackEn) {
-                await loadCleanVTTSubtitles(trackEn, appendSessionId ? appendSessionId("/media/subtitlesEng.vtt") : "/media/subtitlesEng.vtt");
+                await loadCleanVTTSubtitles(trackEn, withSessionId(SUBTITLE_PATHS.en));
             }
 
             applyCurrentSubtitleMode();
