@@ -1,7 +1,5 @@
-/**
- * PLAYER CORE - Paso 1: Player HTML mínimo estable
- * Gestión de reproducción directa, UI personalizada y errores.
- */
+// Controla la reproducción base con MP4 directo, UI personalizada y eventos QoE.
+// También expone una API mínima para que el módulo MSE (Paso 4) reutilice estado y telemetría.
 
 // Función auxiliar para formatear tiempo (00:00)
 const formatTime = (seconds) => {
@@ -29,10 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsToggle = document.getElementById("settingsToggle");
     const settingsMenu = document.getElementById("settingsMenu");
     const subtitlesCurrent = document.getElementById("subtitlesCurrent");
-    const audioCurrent = document.getElementById("audioCurrent");
     const qualityCurrent = document.getElementById("qualityCurrent");
     const trackEs = document.getElementById("trackEs");
-    const statusDisplay = document.getElementById("videoStatus");
+    const trackEn = document.getElementById("trackEn");
     const chaptersList = document.getElementById("chaptersList");
     const chaptersTitle = document.getElementById("chaptersTitle");
     const metadataLangToggle = document.getElementById("metadataLangToggle");
@@ -48,10 +45,84 @@ document.addEventListener("DOMContentLoaded", () => {
     let fsUiTimer = null;
     let currentMetadataLang = "es";
     let currentSubtitleLang = "off";
-    let currentAudioLang = "off";
     let currentQuality = "1080p";
-    let dashPlayer = null; // Instancia para MPEG-DASH
-    let hlsPlayer = null;  // Instancia para HLS
+    // Identificador único por sesión para correlacionar eventos cliente-servidor.
+    const sessionId = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `sid-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const sessionStartTs = performance.now();
+    let startupPending = true;
+    let startupTimeMs = null;
+    let rebufferCount = 0;
+    let sessionEnded = false;
+
+    // Añadimos sid a las URLs de recursos para trazabilidad de peticiones.
+    const appendSessionId = (url) => {
+        try {
+            const nextUrl = new URL(url, window.location.origin);
+            nextUrl.searchParams.set("sid", sessionId);
+            return `${nextUrl.pathname}${nextUrl.search}`;
+        } catch (_error) {
+            return url;
+        }
+    };
+
+    // Enviamos telemetría QoE sin bloquear la reproducción.
+    const emitTelemetry = (eventName, payload = {}, options = {}) => {
+        const body = {
+            event: eventName,
+            session_id: sessionId,
+            ts: new Date().toISOString(),
+            page: window.location.pathname,
+            video_time: Number(video?.currentTime || 0),
+            quality: currentQuality,
+            subtitles: currentSubtitleLang,
+            ...payload
+        };
+
+        console.log("[QOE]", body);
+
+        const endpoint = "/api/telemetry";
+        const serialized = JSON.stringify(body);
+        if (options.useBeacon && navigator.sendBeacon) {
+            navigator.sendBeacon(endpoint, serialized);
+            return;
+        }
+
+        fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: serialized,
+            keepalive: true
+        }).catch(() => {
+            // Silenciamos errores de telemetría para no interferir con la reproducción.
+        });
+    };
+
+    // Cerramos la sesión con un resumen de KPIs principales.
+    const reportSessionSummary = (reason) => {
+        const duration = Number(video?.duration || 0);
+        const watched = Number(video?.currentTime || 0);
+        const completion = duration > 0 ? Number((watched / duration).toFixed(4)) : 0;
+
+        emitTelemetry("session_summary", {
+            reason,
+            startup_time_ms: startupTimeMs,
+            rebuffer_count: rebufferCount,
+            watched_seconds: watched,
+            completion_ratio: completion
+        }, { useBeacon: true });
+    };
+
+    const baseSrc = video?.getAttribute("src");
+    if (baseSrc) {
+        video.src = appendSessionId(baseSrc);
+    }
+
+    emitTelemetry("session_start", {
+        initial_src: video?.getAttribute("src") || "",
+        user_agent: navigator.userAgent
+    });
 
     const isPlayerFullscreen = () => {
         return document.fullscreenElement === playerContainer;
@@ -158,57 +229,38 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Función para procesar y limpiar archivos VTT (remover números de ID)
-    const loadCleanVTTSubtitles = async (trackElement, vttPath) => {
-        try {
-            const response = await fetch(vttPath, { cache: "no-store" });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const applySubtitleTrackMode = (lang) => {
+        const matchingTracks = [];
 
-            const vttText = await response.text();
-            const cleanedVTT = vttText
-                .split(/\r?\n/)
-                .filter((line) => {
-                    // Remover líneas que son SOLO números (IDs de capítulo)
-                    return !/^\d+$/.test(line.trim());
-                })
-                .join("\n");
+        for (let i = 0; i < video.textTracks.length; i++) {
+            const track = video.textTracks[i];
+            if (track.kind !== "subtitles") continue;
 
-            // Crear un blob con el VTT limpio
-            const blob = new Blob([cleanedVTT], { type: "text/vtt;charset=utf-8" });
-            const blobUrl = URL.createObjectURL(blob);
+            if (lang === "off") {
+                track.mode = "disabled";
+                continue;
+            }
 
-            // Asignar el blob URL al track
-            trackElement.src = blobUrl;
-            trackElement.dispatchEvent(new Event("load"));
-        } catch (error) {
-            console.error("Error al cargar subtítulos limpios:", error);
-            trackElement.dispatchEvent(new Event("error"));
+            const language = (track.language || "").toLowerCase();
+            const label = (track.label || "").toLowerCase();
+            const isSpanish = language.startsWith("es") || label.includes("espa");
+            const isEnglish = language.startsWith("en") || label.includes("eng");
+            const shouldShow = (lang === "es" && isSpanish) || (lang === "en" && isEnglish);
+
+            if (shouldShow) {
+                matchingTracks.push(track);
+                // hidden fuerza la carga de cues antes de mostrar.
+                track.mode = "hidden";
+            } else {
+                track.mode = "disabled";
+            }
         }
-    };
 
-    // Función para cargar y limpiar los tracks de subtítulos (necesario para HLS)
-    const attachTracksToVideo = async () => {
-        try {
-            // Cargar subtítulos en español
-            const trackEs = document.getElementById("trackEs");
-            if (trackEs && trackEs.src && !trackEs.src.includes("blob:")) {
-                await loadCleanVTTSubtitles(trackEs, "/media/subtitlesEsp.vtt");
-            }
-
-            // Cargar subtítulos en inglés
-            const trackEn = document.getElementById("trackEn");
-            if (trackEn && trackEn.src && !trackEn.src.includes("blob:")) {
-                await loadCleanVTTSubtitles(trackEn, "/media/subtitlesEng.vtt");
-            }
-
-            // NO TOCAR el metadata track - dejar que cargue naturalmente desde el HTML
-            // El track está definido en practica1.html y se cargará automáticamente
-
-            // Aplicar el idioma de subtítulos actual DESPUÉS de cargar
-            setSubtitleLanguage(currentSubtitleLang);
-            console.log("Tracks de subtítulos cargados correctamente");
-        } catch (error) {
-            console.error("Error cargando tracks:", error);
+        if (lang !== "off" && matchingTracks.length) {
+            // Forzar refresco del track activo para evitar que HLS quede "mudo".
+            requestAnimationFrame(() => {
+                matchingTracks[0].mode = "showing";
+            });
         }
     };
 
@@ -314,139 +366,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const setSubtitleLanguage = (lang) => {
         currentSubtitleLang = lang;
 
-        // 1. Actualizar la UI
         if (subtitlesCurrent) {
             subtitlesCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
         }
 
-        // 2. Si el idioma es OFF, apagamos todo y salimos
-        if (lang === "off") {
-            for (let i = 0; i < video.textTracks.length; i++) {
-                video.textTracks[i].mode = "disabled";
-            }
-            return;
-        }
-
-        // 3. Forzar recarga del VTT para limpiar bloqueos de HLS/DASH
-        const trackId = lang === "es" ? "trackEs" : "trackEn";
-        const vttPath = lang === "es" ? "/media/subtitlesEsp.vtt" : "/media/subtitlesEng.vtt";
-        const trackElement = document.getElementById(trackId);
-
-        if (trackElement) {
-            // Al cargar un nuevo Blob, el navegador refresca el renderizado de subtítulos
-            loadCleanVTTSubtitles(trackElement, vttPath).then(() => {
-                // Una vez cargado el blob, activamos la pista
-                for (let i = 0; i < video.textTracks.length; i++) {
-                    const t = video.textTracks[i];
-                    // Comparamos por idioma o por label para asegurar
-                    if (t.language === lang || t.label.toLowerCase().includes(lang)) {
-                        t.mode = "showing";
-                    } else {
-                        t.mode = "disabled";
-                    }
-                }
-            });
-        }
+        applySubtitleTrackMode(lang);
     };
 
-    const setAudioLanguage = (lang) => {
-        currentAudioLang = lang;
-
-        if (audioCurrent) {
-            audioCurrent.textContent = lang === "off" ? "OFF" : lang.toUpperCase();
-        }
-
-        // Placeholder de selector de audio hasta integrar pistas de audio reales
-        if (statusDisplay) {
-            statusDisplay.textContent = lang === "off"
-                ? "Audio desactivado"
-                : `Audio seleccionado: ${lang.toUpperCase()}`;
-
-            setTimeout(() => {
-                if (statusDisplay.textContent.startsWith("Audio")) {
-                    statusDisplay.textContent = "";
-                }
-            }, 1200);
-        }
-    };
-
-    // Función para limpiar cualquier reproductor adaptativo activo antes de cambiar la calidad
-    const resetAdaptivePlayers = () => {
-        if (dashPlayer) {
-            dashPlayer.reset();
-            dashPlayer = null;
-        }
-        if (hlsPlayer) {
-            hlsPlayer.destroy();
-            hlsPlayer = null;
-        }
-        video.pause();
-        
-        // Limpiar modos de tracks para evitar conflictos de memoria
-        for (let i = 0; i < video.textTracks.length; i++) {
-            video.textTracks[i].mode = "disabled";
-        }
-
-        video.removeAttribute('src');
-        video.load();
-    };
-
-    const setVideoQuality = (quality) => {
-        console.log(`Cambiando calidad a: ${quality}`);
-        const currentTime = video.currentTime;
-        const isPaused = video.paused;
-        
-        // Limpiamos cualquier reproductor adaptativo previo
-        resetAdaptivePlayers();
-
-
-        if (quality === "DASH") {
-            console.log("Inicializando reproductor MPEG-DASH...");
-            // Configuración MPEG-DASH
-            dashPlayer = dashjs.MediaPlayer().create();
-            dashPlayer.initialize(video, "/assets/videos/dash/manifest.mpd", true);
-            // Esperamos a que el stream esté listo para saltar al tiempo correcto
-            dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-                dashPlayer.seek(currentTime);
-                if (!isPaused) video.play();
-            });
-            currentQuality = "DASH";
-        } 
-        else if (quality === "HLS") {
-            console.log("Inicializando reproductor HLS...");
-            // Configuración HLS
-            if (Hls.isSupported()) {
-                hlsPlayer = new Hls();
-                hlsPlayer.loadSource("/assets/videos/hls/master.m3u8");
-                hlsPlayer.attachMedia(video);
-                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, async () => {
-                    video.currentTime = currentTime;
-                    if (!isPaused) await video.play();
-                    // Cargar los tracks de subtítulos después de que el manifest se parsee
-                    await attachTracksToVideo();
-                    setSubtitleLanguage(currentSubtitleLang);
-                });
-            }
-            currentQuality = "HLS";
-        }
-        else {
-            console.log("Cambiando a calidad progresiva (MP4)...");
-            // Modo Progresivo (MP4 normal)
-            currentQuality = quality;
-            video.src = `/assets/videos/mp4/Video_${quality}.mp4`;
-            video.load();
-            video.onloadedmetadata = async () => {
-                video.currentTime = currentTime;
-                if (!isPaused) video.play();
-                video.onloadedmetadata = null;
-                // Recargar los tracks después de cambiar a MP4
-                await attachTracksToVideo();
-            };
-        }
-
+    const updateQualityUI = (quality) => {
+        currentQuality = quality;
         if (qualityCurrent) {
             qualityCurrent.textContent = currentQuality.toUpperCase();
         }
+    };
+
+    // Compartimos API mínima para que el módulo MSE gestione motores sin duplicar lógica base.
+    window.playerCore = {
+        video,
+        trackEs,
+        trackEn,
+        status,
+        applySubtitleTrackMode,
+        getCurrentSubtitleLang: () => currentSubtitleLang,
+        updateQualityUI,
+        sessionId,
+        appendSessionId,
+        emitTelemetry
     };
 
     const setSettingsMenuState = (isOpen, options = {}) => {
@@ -520,8 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const value = optionBtn.dataset.value;
 
             if (setting === "subtitles") setSubtitleLanguage(value);
-            if (setting === "audio") setAudioLanguage(value);
-            if (setting === "quality") setVideoQuality(value);
+            if (setting === "quality") window.mseController?.setVideoQuality(value);
 
             settingsMenu.querySelectorAll(`.settings-option[data-setting="${setting}"]`).forEach((btn) => {
                 btn.classList.toggle("active", btn.dataset.value === value);
@@ -546,8 +490,20 @@ document.addEventListener("DOMContentLoaded", () => {
         video.paused ? video.play() : video.pause();
     });
 
-    video.addEventListener("play", () => playIcon.src = paths.pause);
-    video.addEventListener("pause", () => playIcon.src = paths.play);
+    video.addEventListener("play", () => {
+        playIcon.src = paths.pause;
+        if (startupPending) {
+            startupPending = false;
+            startupTimeMs = Math.round(performance.now() - sessionStartTs);
+            emitTelemetry("startup_time", { startup_time_ms: startupTimeMs });
+        }
+        emitTelemetry("play");
+    });
+
+    video.addEventListener("pause", () => {
+        playIcon.src = paths.play;
+        emitTelemetry("pause");
+    });
 
     // --- NAVEGACIÓN Y PROGRESO ---
     forward10.addEventListener("click", () => {
@@ -576,6 +532,14 @@ document.addEventListener("DOMContentLoaded", () => {
         video.currentTime = progress.value;
     });
 
+    video.addEventListener("seeking", () => {
+        emitTelemetry("seeking", { target_time: Number(video.currentTime.toFixed(2)) });
+    });
+
+    video.addEventListener("seeked", () => {
+        emitTelemetry("seeked", { target_time: Number(video.currentTime.toFixed(2)) });
+    });
+
     // --- VOLUMEN Y FULLSCREEN ---
     muteBtn.addEventListener("click", () => {
         video.muted = !video.muted;
@@ -583,9 +547,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fullscreenBtn.addEventListener("click", () => {
-        const container = video.closest('.video-player');
         if (!document.fullscreenElement) {
-            container.requestFullscreen?.() || container.webkitRequestFullscreen?.();
+            playerContainer?.requestFullscreen?.() || playerContainer?.webkitRequestFullscreen?.();
         } else {
             document.exitFullscreen?.() || document.webkitExitFullscreen?.();
         }
@@ -617,38 +580,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- GESTIÓN EXPLÍCITA DE ERRORES Y ESTADOS ---
 
-    // Evento 'error' en la pista de subtítulos
-    trackEs.addEventListener("error", () => {
-        // Si el archivo no carga (404) o el MIME type no es text/vtt
-        statusDisplay.textContent = "ERROR: No se pudo cargar el archivo de subtítulos (VTT).";
-        statusDisplay.style.color = "red";
-        console.error("Fallo en la carga de: " + trackEs.src);
-    });
+    const bindSubtitleTrackStatus = (trackElement) => {
+        if (!trackElement) return;
 
-    // Evento 'load' para confirmar carga exitosa
-    trackEs.addEventListener("load", () => {
-        console.log("Subtítulos cargados correctamente y listos.");
-        // Opcional: limpiar mensajes previos si la carga fue exitosa
-        if (statusDisplay.textContent.includes("VTT")) {
-            statusDisplay.textContent = "";
-        }
-    });
+        trackElement.addEventListener("error", () => {
+            // Si el archivo no carga (404) o el MIME type no es text/vtt
+            status.textContent = "ERROR: No se pudo cargar el archivo de subtítulos (VTT).";
+            status.style.color = "red";
+            console.error("Fallo en la carga de:", trackElement.src);
+        });
+
+        trackElement.addEventListener("load", () => {
+            if (status.textContent.includes("VTT")) {
+                status.textContent = "";
+            }
+        });
+    };
+
+    bindSubtitleTrackStatus(trackEs);
+    bindSubtitleTrackStatus(trackEn);
 
     // Implementación de los estados mínimos requeridos: LOADING, READY, ERROR
     video.addEventListener("waiting", () => {
         status.textContent = "Cargando buffer...";
         status.style.color = "orange";
+        rebufferCount += 1;
+        emitTelemetry("rebuffering", { rebuffer_count: rebufferCount });
     });
 
     video.addEventListener("playing", () => {
         status.textContent = ""; // Limpiar mensajes al reproducir
+        emitTelemetry("playing");
     });
 
     video.addEventListener("error", () => {
         const err = video.error;
+        if (!err) return;
         let message = "Error desconocido de video.";
         
-        // Switch de errores según la API de HTML5[cite: 1]
+        // Mapeamos los códigos de error estándar de la API de video HTML5.
         switch (err.code) {
             case 1: message = "Proceso de carga abortado por el usuario."; break;
             case 2: message = "Error de red al descargar el video."; break;
@@ -657,14 +627,34 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         status.textContent = `CRITICAL ERROR: ${message}`;
         status.style.color = "red";
+        emitTelemetry("error", { code: err.code, message });
     });
 
     video.addEventListener("stalled", () => {
         status.textContent = "La red está demasiado lenta. Reintentando...";
+        emitTelemetry("stalled");
+    });
+
+    video.addEventListener("ended", () => {
+        sessionEnded = true;
+        emitTelemetry("ended");
+        reportSessionSummary("ended");
+    });
+
+    window.addEventListener("beforeunload", () => {
+        if (!sessionEnded) {
+            const duration = Number(video?.duration || 0);
+            const watched = Number(video?.currentTime || 0);
+            const completion = duration > 0 ? watched / duration : 0;
+            emitTelemetry("abandon", {
+                watched_seconds: watched,
+                completion_ratio: Number(completion.toFixed(4))
+            }, { useBeacon: true });
+            reportSessionSummary("abandon");
+        }
     });
 
     setSubtitleLanguage(currentSubtitleLang);
-    setAudioLanguage(currentAudioLang);
 
     if (settingsMenu) {
         settingsMenu.querySelectorAll(".settings-option").forEach((btn) => {
@@ -672,7 +662,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const value = btn.dataset.value;
 
             if (setting === "subtitles" && value === currentSubtitleLang) btn.classList.add("active");
-            if (setting === "audio" && value === currentAudioLang) btn.classList.add("active");
             if (setting === "quality" && value === currentQuality) btn.classList.add("active");
         });
     }
@@ -686,6 +675,5 @@ document.addEventListener("DOMContentLoaded", () => {
     applyMetadataLanguage(initialLang);
     loadChapters(initialLang);
 
-    // Cargar subtítulos limpios (sin números de ID) para ambos idiomas
-    attachTracksToVideo();
+    updateQualityUI(currentQuality);
 });

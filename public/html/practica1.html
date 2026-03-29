@@ -11,6 +11,8 @@
 </head>
 <body>
 
+    <!-- Vista principal de la práctica: player, metadatos, mapa y capítulos en una sola pantalla. -->
+
     <div id="header-placeholder"></div>
 
     <main class="main-content">
@@ -23,14 +25,14 @@
                     <div class="video-player">
 
                         <video id="videoPlayer" src="/assets/videos/mp4/Video_1080p.mp4">
-                            <!--source src="/assets/videos/mp4/Video_4k.mp4" type="video/mp4"-->
                             <track id="trackEs" src="/media/subtitlesEsp.vtt" kind="subtitles" srclang="es" label="Español">
                             <track id="trackEn" src="/media/subtitlesEng.vtt" kind="subtitles" srclang="en" label="English">
                             <track id="pistas" label="Metadatos" kind="metadata" src="/media/metadataEsp.vtt" default>                        
                         </video>
 
-                        <div id="videoOverlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(45, 90, 39, 0.9); z-index: 10; flex-direction: column; justify-content: center; align-items: center; color: white;">
-                            <div id="quizContent" style="text-align: center; padding: 20px;"></div>
+                        <!-- Aqui dejamos el estilo del overlay en CSS para evitar duplicar reglas en el HTML. -->
+                        <div id="videoOverlay">
+                            <div id="quizContent"></div>
                         </div>
 
                         <!-- CONTROLES SOBRE EL VIDEO -->
@@ -71,17 +73,6 @@
                                                     <button class="settings-option" type="button" data-setting="subtitles" data-value="off">Off</button>
                                                     <button class="settings-option" type="button" data-setting="subtitles" data-value="es">Español</button>
                                                     <button class="settings-option" type="button" data-setting="subtitles" data-value="en">English</button>
-                                                </div>
-                                            </div>
-
-                                            <div class="settings-item" data-section="audio">
-                                                <button class="settings-main-btn" type="button">
-                                                    <span>Audio</span>
-                                                    <span class="settings-current" id="audioCurrent">Español</span>
-                                                </button>
-                                                <div class="settings-submenu">
-                                                    <button class="settings-option" type="button" data-setting="audio" data-value="off">Off</button>
-                                                    <button class="settings-option" type="button" data-setting="audio" data-value="es">Español</button>
                                                 </div>
                                             </div>
 
@@ -135,7 +126,7 @@
                 </div>
                 <div class="grid-item item-mapa">
                     <!-- Usar object permite que JS acceda al contenido interno del SVG -->
-                    <object id="houseMap" data="../assets/img/houseMap.svg" type="image/svg+xml" style="width:100%; height:100%;"></object>
+                    <object id="houseMap" data="../assets/img/houseMap.svg" type="image/svg+xml"></object>
                 </div>
             </div>
 
@@ -157,6 +148,7 @@
     <script src="/js/main.js"></script>
     <script src="/js/semantic.js"></script>
     <script src="/js/player.js"></script>
+    <script src="/js/mse.js"></script>
 
 </body>
 </html>

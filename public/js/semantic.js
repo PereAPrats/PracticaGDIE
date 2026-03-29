@@ -1,3 +1,6 @@
+// Capa semántica: carga metadatos VTT, actualiza texto/mapa en tiempo real y lanza quizzes interactivos.
+// Mantiene sincronía con el idioma de metadatos y controla la lógica de respuestas del usuario.
+
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('videoPlayer');
     const overlay = document.getElementById('videoOverlay');
@@ -5,13 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const textContainer = document.getElementById('roomDescription');
     const nameContainer = document.getElementById('roomName');
     const statusContainer = document.getElementById('videoStatus');
-    const metadataElement = document.getElementById('pistas');
 
     let metadataCues = []; // Almacenar metadata parseado manualmente
     let quizLanzado = false;
     let cueActualKey = null;
     let feedbackTimer = null;
-    let currentMetadataLang = 'es';
 
     const PLACEHOLDERS = {
         es: {
@@ -25,8 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Parsear VTT manualmente
+    // Parseamos cues JSON embebidos en VTT para usarlos como fuente de estado de la UI.
     function parseMetadataVTT(vttText) {
-        const lines = vttText.split('\n');
+        const lines = vttText.split(/\r?\n/);
         const cues = [];
         let i = 0;
 
@@ -61,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const data = JSON.parse(jsonText);
                     cues.push({ startTime, endTime, data });
-                    console.log(`✓ Cue parseado: ${startTime}s - ${endTime}s`);
                 } catch (e) {
                     console.error('Error parseando JSON:', jsonText.substring(0, 50), e);
                 }
@@ -87,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar metadata VTT
     async function loadMetadata(lang = 'es') {
-        currentMetadataLang = lang;
         const file = lang === 'en' ? '/media/metadataEng.vtt' : '/media/metadataEsp.vtt';
 
         try {
@@ -96,13 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const vttText = await response.text();
             metadataCues = parseMetadataVTT(vttText);
-            console.log(`✓ Metadata cargado en ${lang}: ${metadataCues.length} cues`);
-
-            return true;
+            console.log(`Metadata cargado en ${lang}: ${metadataCues.length} cues`);
         } catch (error) {
-            console.error(`❌ Error cargando metadata ${lang}:`, error);
+            console.error(`Error cargando metadata ${lang}:`, error);
             metadataCues = [];
-            return false;
         }
     }
 
@@ -148,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar metadata al inicio
     video.addEventListener('loadedmetadata', () => {
-        console.log('🎥 loadedmetadata disparado');
+        console.log('loadedmetadata disparado');
         loadMetadata('es');
         actualizarPlaceholdersIdioma('es');
     });
@@ -156,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cambio de idioma
     document.addEventListener('metadata-language-change', (event) => {
         const lang = event?.detail?.lang === 'en' ? 'en' : 'es';
-        console.log(`🔄 Cambiando metadata a ${lang}`);
+        console.log(`Cambiando metadata a ${lang}`);
         loadMetadata(lang);
         actualizarPlaceholdersIdioma(lang);
     });
@@ -166,7 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Buscar cue activo en el array parseado
         const activeCue = metadataCues.find(c => video.currentTime >= c.startTime && video.currentTime < c.endTime);
 
-        if (!activeCue) return;
+        if (!activeCue) {
+            // Si no hay cue activa, soltamos la llave para que el quiz pueda rearmarse al volver a entrar.
+            cueActualKey = null;
+            return;
+        }
 
         const nuevoCueKey = `${activeCue.startTime}-${activeCue.endTime}`;
 
@@ -194,17 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Mostramos una pregunta del pool al final del cue activo y pausamos reproducción.
     function mostrarQuizEnVideo(pool, restartTime) {
         const quiz = pool[Math.floor(Math.random() * pool.length)];
         if (!quiz || !Array.isArray(quiz.opciones) || quiz.opciones.length === 0) return;
 
         overlay.style.display = 'flex'; 
         quizContent.innerHTML = `
-            <h2 style="margin-bottom: 20px;">${quiz.pregunta}</h2>
-            <div style="display: flex; gap: 15px; justify-content: center;">
+            <h2 class="quiz-title">${quiz.pregunta}</h2>
+            <div class="quiz-options">
                 ${quiz.opciones.map((opt, i) => `
-                    <button class="btn-quiz" 
-                            style="padding: 10px 20px; cursor: pointer; background: white; border: none; border-radius: 5px; color: #2d5a27; font-weight: bold;"
+                    <button class="btn-quiz btn-quiz-option"
                             data-index="${i}">
                         ${obtenerTextoOpcion(opt)}
                     </button>
@@ -252,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
+    // Resolvemos acción por prioridad: regla de opción, regla global y fallback por correcta/incorrecta.
     function resolverAccionRespuesta(quiz, seleccion) {
         const opcionSeleccionada = Array.isArray(quiz.opciones) ? quiz.opciones[seleccion] : null;
 
