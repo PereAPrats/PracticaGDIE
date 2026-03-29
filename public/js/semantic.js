@@ -25,6 +25,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    function normalizarCueData(rawData) {
+        if (!rawData || typeof rawData !== 'object') {
+            return null;
+        }
+
+        const hasSchema = typeof rawData.type === 'string'
+            && typeof rawData.action === 'string'
+            && rawData.payload
+            && typeof rawData.payload === 'object';
+
+        if (hasSchema) {
+            return rawData;
+        }
+
+        // Compatibilidad hacia atras para cues antiguos sin el esquema requerido.
+        return {
+            type: 'metadata',
+            action: 'render-room',
+            payload: rawData
+        };
+    }
+
     // Parsear VTT manualmente
     // Parseamos cues JSON embebidos en VTT para usarlos como fuente de estado de la UI.
     function parseMetadataVTT(vttText) {
@@ -62,7 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     const data = JSON.parse(jsonText);
-                    cues.push({ startTime, endTime, data });
+                    const cueData = normalizarCueData(data);
+                    if (cueData) {
+                        cues.push({ startTime, endTime, data: cueData });
+                    }
                 } catch (e) {
                     console.error('Error parseando JSON:', jsonText.substring(0, 50), e);
                 }
@@ -176,15 +201,17 @@ document.addEventListener('DOMContentLoaded', () => {
             quizLanzado = false;
         }
 
-        const data = activeCue.data;
+        const cueData = activeCue.data;
+        if (cueData.action !== 'render-room') return;
+        const payload = cueData.payload || {};
 
         // Actualizar Interfaz
-        if (nameContainer) nameContainer.innerText = data.Name || data.Nombre || "";
-        if (textContainer) textContainer.innerText = data.Descripcion || "";
-        if (data.Room) actualizarMapa(data.Room);
+        if (nameContainer) nameContainer.innerText = payload.Name || payload.Nombre || "";
+        if (textContainer) textContainer.innerText = payload.Descripcion || "";
+        if (payload.Room) actualizarMapa(payload.Room);
 
         // Lógica del Quiz
-        const pool = data.quiz_pool || data.quizz_pool;
+        const pool = payload.quiz_pool || payload.quizz_pool;
         if (pool && pool.length > 0) {
             // Si llegamos al final de la habitación y no hemos preguntado
             if (video.currentTime >= activeCue.endTime - 0.5 && !quizLanzado) {

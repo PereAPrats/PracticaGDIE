@@ -2,682 +2,1302 @@
 
 00:00:00.000 --> 00:00:02.000
 {
-  "Room": "Room1",
-  "Name": "Porch",
-  "Descripcion": "The image feels like a water-damaged photograph. There is subtle visual static over a house that does not feel like a home, but rather a dormant organism under a leaden, featureless sky.",
-  "quiz_pool": [
-    {
-      "pregunta": "Do you want to go in?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "goto", "destino": "00:09:44.000" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room1",
+    "Name": "Porch",
+    "Descripcion": "The image feels like a water-damaged photograph. There is subtle visual static over a house that does not feel like a home, but rather a dormant organism under a leaden, featureless sky.",
+    "quiz_pool": [
+      {
+        "pregunta": "Do you want to go in?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "goto",
+            "destino": "00:09:44.000"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:00:02.000 --> 00:00:36.000
 {
-  "Room": "Room2",
-  "Name": "Hallway",
-  "Descripcion": "The porch floorboards seem to swallow light rather than reflect it. The transition from flat outdoor daylight to indoor gloom is unsettling. The stacked cardboard boxes look heavy and damp, as if they were filled with wet sand.",
-  "quiz_pool": [
-    {
-      "pregunta": "What is under the mattress with yellow diamonds?",
-      "opciones": [
-        { "texto": "Travel tickets", "accion": "repeat" },
-        { "texto": "Legal papers", "accion": "repeat" },
-        { "texto": "Nothing", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "What is not on top of the fireplace?",
-      "opciones": [
-        { "texto": "Clock", "accion": "repeat" },
-        { "texto": "Glass teapot", "accion": "continue" },
-        { "texto": "Painting", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many ceiling lamps are hanging?",
-      "opciones": [
-        { "texto": "One", "accion": "repeat" },
-        { "texto": "Two", "accion": "repeat" },
-        { "texto": "None", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a printer?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a television?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a globe bar cabinet?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "How many floor lamps are there?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "What is the name of the magazine on top of the printers?",
-      "opciones": [
-        { "texto": "Masonry", "accion": "continue" },
-        { "texto": "Interior Design", "accion": "repeat" },
-        { "texto": "There is no magazine", "accion": "repeat" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room2",
+    "Name": "Hallway",
+    "Descripcion": "The porch floorboards seem to swallow light rather than reflect it. The transition from flat outdoor daylight to indoor gloom is unsettling. The stacked cardboard boxes look heavy and damp, as if they were filled with wet sand.",
+    "quiz_pool": [
+      {
+        "pregunta": "What is under the mattress with yellow diamonds?",
+        "opciones": [
+          {
+            "texto": "Travel tickets",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Legal papers",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Nothing",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is not on top of the fireplace?",
+        "opciones": [
+          {
+            "texto": "Clock",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Glass teapot",
+            "accion": "continue"
+          },
+          {
+            "texto": "Painting",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many ceiling lamps are hanging?",
+        "opciones": [
+          {
+            "texto": "One",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Two",
+            "accion": "repeat"
+          },
+          {
+            "texto": "None",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a printer?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a television?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a globe bar cabinet?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many floor lamps are there?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is the name of the magazine on top of the printers?",
+        "opciones": [
+          {
+            "texto": "Masonry",
+            "accion": "continue"
+          },
+          {
+            "texto": "Interior Design",
+            "accion": "repeat"
+          },
+          {
+            "texto": "There is no magazine",
+            "accion": "repeat"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:00:36.000 --> 00:01:46.000
 {
-  "Room": "Room3",
-  "Name": "First bedroom",
-  "Descripcion": "A room stained with ochre. The yellow-patterned bench stands out like a visual bruise among the shadows. Light spills through the window but does not illuminate; it only highlights dust particles suspended in the air as if trapped in gelatin.",
-  "quiz_pool": [
-    {
-      "pregunta": "Is there a chandelier?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Which team is the cheerleader outfit from?",
-      "opciones": [
-        { "texto": "LIONS", "accion": "repeat" },
-        { "texto": "TIGERS", "accion": "continue" },
-        { "texto": "BEARS", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is on top of the vanity?",
-      "opciones": [
-        { "texto": "Wooden arrow", "accion": "continue" },
-        { "texto": "Old cologne bottle", "accion": "repeat" },
-        { "texto": "Old letters", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is on top of the fireplace?",
-      "opciones": [
-        { "texto": "Dancing boy", "accion": "continue" },
-        { "texto": "Wooden truck", "accion": "repeat" },
-        { "texto": "Rusty knife", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Does it have a light switch?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room3",
+    "Name": "First bedroom",
+    "Descripcion": "A room stained with ochre. The yellow-patterned bench stands out like a visual bruise among the shadows. Light spills through the window but does not illuminate; it only highlights dust particles suspended in the air as if trapped in gelatin.",
+    "quiz_pool": [
+      {
+        "pregunta": "Is there a chandelier?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Which team is the cheerleader outfit from?",
+        "opciones": [
+          {
+            "texto": "LIONS",
+            "accion": "repeat"
+          },
+          {
+            "texto": "TIGERS",
+            "accion": "continue"
+          },
+          {
+            "texto": "BEARS",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is on top of the vanity?",
+        "opciones": [
+          {
+            "texto": "Wooden arrow",
+            "accion": "continue"
+          },
+          {
+            "texto": "Old cologne bottle",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Old letters",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is on top of the fireplace?",
+        "opciones": [
+          {
+            "texto": "Dancing boy",
+            "accion": "continue"
+          },
+          {
+            "texto": "Wooden truck",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Rusty knife",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Does it have a light switch?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:01:46.000 --> 00:02:02.000
 {
-  "Room": "Room4",
-  "Name": "Second bedroom",
-  "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
-  "quiz_pool": [
-    {
-      "pregunta": "What do you want to open?",
-      "opciones": [
-        { "texto": "Only the drawer", "accion": "continue" },
-        { "texto": "Only the shelf", "accion": "goto", "destino": "00:02:16.000" },
-        { "texto": "Both", "accion": "continue" },
-        { "texto": "Nothing", "accion": "goto", "destino": "00:02:38.000" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room4",
+    "Name": "Second bedroom",
+    "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
+    "quiz_pool": [
+      {
+        "pregunta": "What do you want to open?",
+        "opciones": [
+          {
+            "texto": "Only the drawer",
+            "accion": "continue"
+          },
+          {
+            "texto": "Only the shelf",
+            "accion": "goto",
+            "destino": "00:02:16.000"
+          },
+          {
+            "texto": "Both",
+            "accion": "continue"
+          },
+          {
+            "texto": "Nothing",
+            "accion": "goto",
+            "destino": "00:02:38.000"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:02:02.000 --> 00:02:16.000
 {
-  "Room": "Room4",
-  "Name": "Second bedroom",
-  "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
-  "quiz_pool": []
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room4",
+    "Name": "Second bedroom",
+    "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
+    "quiz_pool": []
+  }
 }
 
 00:02:16.000 --> 00:02:38.000
 {
-  "Room": "Room4",
-  "Name": "Second bedroom",
-  "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
-  "quiz_pool": []
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room4",
+    "Name": "Second bedroom",
+    "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
+    "quiz_pool": []
+  }
 }
 
 00:02:38.000 --> 00:02:40.000
 {
-  "Room": "Room4",
-  "Name": "Second bedroom",
-  "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
-  "quiz_pool": [
-    {
-      "pregunta": "What is the armchair at the entrance on top of?",
-      "opciones": [
-        { "texto": "On another armchair", "accion": "repeat" },
-        { "texto": "On a table", "accion": "continue" },
-        { "texto": "On boxes", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is the painting above the fireplace about?",
-      "opciones": [
-        { "texto": "A landscape", "accion": "repeat" },
-        { "texto": "A self-portrait of a man", "accion": "continue" },
-        { "texto": "A still life", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many windows are there?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "What is inside the shelf?",
-      "opciones": [
-        { "texto": "Bags", "accion": "repeat" },
-        { "texto": "Tobacco", "accion": "repeat" },
-        { "texto": "Medicine", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a passport inside the drawer?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a tobacco pack inside the drawer?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a chandelier?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room4",
+    "Name": "Second bedroom",
+    "Descripcion": "The colors here feel toxic. The yellow cheerleader uniform has a synthetic shine that hurts the eyes. The cracks in the wooden walls seem to branch like organic capillaries as you look at them.",
+    "quiz_pool": [
+      {
+        "pregunta": "What is the armchair at the entrance on top of?",
+        "opciones": [
+          {
+            "texto": "On another armchair",
+            "accion": "repeat"
+          },
+          {
+            "texto": "On a table",
+            "accion": "continue"
+          },
+          {
+            "texto": "On boxes",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is the painting above the fireplace about?",
+        "opciones": [
+          {
+            "texto": "A landscape",
+            "accion": "repeat"
+          },
+          {
+            "texto": "A self-portrait of a man",
+            "accion": "continue"
+          },
+          {
+            "texto": "A still life",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many windows are there?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is inside the shelf?",
+        "opciones": [
+          {
+            "texto": "Bags",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Tobacco",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Medicine",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a passport inside the drawer?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a tobacco pack inside the drawer?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a chandelier?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:02:40.000 --> 00:02:58.000
 {
-  "Room": "Room5",
-  "Name": "Closet",
-  "Descripcion": "A transition into absolute darkness. There is no floor or ceiling perspective; it is a visual void that causes vertigo. It feels as if the camera is sliding through a vacuum of black tar.",
-  "quiz_pool": [
-    {
-      "pregunta": "What is in the upper part?",
-      "opciones": [
-        { "texto": "An old cart", "accion": "continue" },
-        { "texto": "A mysterious trunk", "accion": "repeat" },
-        { "texto": "Moving boxes", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Does the room have light?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many hangers are hanging?",
-      "opciones": [
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" },
-        { "texto": "3", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there any bag?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "The floor...?",
-      "opciones": [
-        { "texto": "Is full of newspapers", "accion": "continue" },
-        { "texto": "Is full of boxes", "accion": "repeat" },
-        { "texto": "Has broken glass", "accion": "repeat" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room5",
+    "Name": "Closet",
+    "Descripcion": "A transition into absolute darkness. There is no floor or ceiling perspective; it is a visual void that causes vertigo. It feels as if the camera is sliding through a vacuum of black tar.",
+    "quiz_pool": [
+      {
+        "pregunta": "What is in the upper part?",
+        "opciones": [
+          {
+            "texto": "An old cart",
+            "accion": "continue"
+          },
+          {
+            "texto": "A mysterious trunk",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Moving boxes",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Does the room have light?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many hangers are hanging?",
+        "opciones": [
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          },
+          {
+            "texto": "3",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any bag?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "The floor...?",
+        "opciones": [
+          {
+            "texto": "Is full of newspapers",
+            "accion": "continue"
+          },
+          {
+            "texto": "Is full of boxes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Has broken glass",
+            "accion": "repeat"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:02:58.000 --> 00:04:22.000
 {
-  "Room": "Room6",
-  "Name": "First living room",
-  "Descripcion": "The gold leaf on the frames has a greasy, oxidized shine. The glass over the photos has an oily reflection that distorts the faces inside. The room seems to be breathing slowly, expanding and contracting.",
-  "quiz_pool": [
-    {
-      "pregunta": "Do you want to enter?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "goto", "destino": "00:04:40.000" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room6",
+    "Name": "First living room",
+    "Descripcion": "The gold leaf on the frames has a greasy, oxidized shine. The glass over the photos has an oily reflection that distorts the faces inside. The room seems to be breathing slowly, expanding and contracting.",
+    "quiz_pool": [
+      {
+        "pregunta": "Do you want to enter?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "goto",
+            "destino": "00:04:40.000"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:04:22.000 --> 00:04:40.000
 {
-  "Room": "Room7",
-  "Name": "Bathroom storage",
-  "Descripcion": "A cluttered corner saturated with cheap, sickly artificial light. Objects on the shelves have lost their sharp edges, appearing as amorphous masses under a layer of dirt that shines like silk.",
-  "quiz_pool": [
-    {
-      "pregunta": "Is there a toilet?",
-      "opciones": [
-        { "texto": "Yes, lying on the floor", "accion": "repeat" },
-        { "texto": "It cannot be seen", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a floor?",
-      "opciones": [
-        { "texto": "Yes, with magazines on it", "accion": "continue" },
-        { "texto": "No, it is broken into pieces", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a speaker?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a trunk?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is not there?",
-      "opciones": [
-        { "texto": "Speaker", "accion": "repeat" },
-        { "texto": "Shopping cart", "accion": "continue" },
-        { "texto": "Door", "accion": "repeat" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room7",
+    "Name": "Bathroom storage",
+    "Descripcion": "A cluttered corner saturated with cheap, sickly artificial light. Objects on the shelves have lost their sharp edges, appearing as amorphous masses under a layer of dirt that shines like silk.",
+    "quiz_pool": [
+      {
+        "pregunta": "Is there a toilet?",
+        "opciones": [
+          {
+            "texto": "Yes, lying on the floor",
+            "accion": "repeat"
+          },
+          {
+            "texto": "It cannot be seen",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a floor?",
+        "opciones": [
+          {
+            "texto": "Yes, with magazines on it",
+            "accion": "continue"
+          },
+          {
+            "texto": "No, it is broken into pieces",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a speaker?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a trunk?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is not there?",
+        "opciones": [
+          {
+            "texto": "Speaker",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Shopping cart",
+            "accion": "continue"
+          },
+          {
+            "texto": "Door",
+            "accion": "repeat"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:04:40.000 --> 00:06:24.000
 {
-  "Room": "Room6",
-  "Name": "First living room",
-  "Descripcion": "The focus sharpens abruptly over the trunk. The leather is so cracked it looks like scar tissue. The iron lock has a cold, hostile glint; you feel that touching it would make you bleed.",
-  "quiz_pool": [
-    {
-      "pregunta": "What is not in the room?",
-      "opciones": [
-        { "texto": "A walker", "accion": "repeat" },
-        { "texto": "Crutches", "accion": "repeat" },
-        { "texto": "A wheelchair", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "What is the title of the book that opens?",
-      "opciones": [
-        { "texto": "The Constitution", "accion": "repeat" },
-        { "texto": "The Confederacy", "accion": "continue" },
-        { "texto": "The Union", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many katanas are there?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Which alcohol brand appears on a box?",
-      "opciones": [
-        { "texto": "Red Label", "accion": "repeat" },
-        { "texto": "Jack Daniel's", "accion": "continue" },
-        { "texto": "Absolut Vodka", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there any vinyl record?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many mattresses are there?",
-      "opciones": [
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "repeat" },
-        { "texto": "3", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a chandelier?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "In the outer room, what was the floor like?",
-      "opciones": [
-        { "texto": "Covered with boxes", "accion": "continue" },
-        { "texto": "With newspapers scattered", "accion": "repeat" },
-        { "texto": "Broken by the passing of time", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a shower?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Was there a ladder in the closet with bathroom?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Was there any ladder?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many floor lamps are in the center?",
-      "opciones": [
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" },
-        { "texto": "3", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a fireplace?",
-      "opciones": [
-        { "texto": "Yes, but sealed with brick", "accion": "repeat" },
-        { "texto": "No fireplace was seen", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "How many drawers are opened?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "More than 2", "accion": "continue" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room6",
+    "Name": "First living room",
+    "Descripcion": "The focus sharpens abruptly over the trunk. The leather is so cracked it looks like scar tissue. The iron lock has a cold, hostile glint; you feel that touching it would make you bleed.",
+    "quiz_pool": [
+      {
+        "pregunta": "What is not in the room?",
+        "opciones": [
+          {
+            "texto": "A walker",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Crutches",
+            "accion": "repeat"
+          },
+          {
+            "texto": "A wheelchair",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is the title of the book that opens?",
+        "opciones": [
+          {
+            "texto": "The Constitution",
+            "accion": "repeat"
+          },
+          {
+            "texto": "The Confederacy",
+            "accion": "continue"
+          },
+          {
+            "texto": "The Union",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many katanas are there?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Which alcohol brand appears on a box?",
+        "opciones": [
+          {
+            "texto": "Red Label",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Jack Daniel's",
+            "accion": "continue"
+          },
+          {
+            "texto": "Absolut Vodka",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any vinyl record?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many mattresses are there?",
+        "opciones": [
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "repeat"
+          },
+          {
+            "texto": "3",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a chandelier?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "In the outer room, what was the floor like?",
+        "opciones": [
+          {
+            "texto": "Covered with boxes",
+            "accion": "continue"
+          },
+          {
+            "texto": "With newspapers scattered",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Broken by the passing of time",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a shower?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Was there a ladder in the closet with bathroom?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Was there any ladder?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many floor lamps are in the center?",
+        "opciones": [
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          },
+          {
+            "texto": "3",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a fireplace?",
+        "opciones": [
+          {
+            "texto": "Yes, but sealed with brick",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No fireplace was seen",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many drawers are opened?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "More than 2",
+            "accion": "continue"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:06:24.000 --> 00:07:26.000
 {
-  "Room": "Room8",
-  "Name": "Hallway",
-  "Descripcion": "A tunnel-like feeling. The walls seem to lean inward. There is peripheral distortion that stretches the hallway, making it feel like a recurring fever dream where the end is never reached.",
-  "quiz_pool": [
-    {
-      "pregunta": "Is there a staircase?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is not on top of the shelf?",
-      "opciones": [
-        { "texto": "A mirror", "accion": "repeat" },
-        { "texto": "Hair sticks", "accion": "repeat" },
-        { "texto": "Baby wipes", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "How many people appear in the picture above the shelf?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there any painting with a dog?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there any painting with a cat?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "When was the wedding?",
-      "opciones": [
-        { "texto": "October 1969", "accion": "continue" },
-        { "texto": "January 1972", "accion": "repeat" },
-        { "texto": "May 1954", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Where was the wedding?",
-      "opciones": [
-        { "texto": "Arizona", "accion": "repeat" },
-        { "texto": "Alaska", "accion": "repeat" },
-        { "texto": "Alabama", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Who got married?",
-      "opciones": [
-        { "texto": "Isabel and Maxime", "accion": "repeat" },
-        { "texto": "Sharon and Gregory", "accion": "continue" },
-        { "texto": "Anne and Gilbert", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is the painting inside the shelf drawer about?",
-      "opciones": [
-        { "texto": "A still life with vases", "accion": "repeat" },
-        { "texto": "A beach landscape", "accion": "repeat" },
-        { "texto": "A self-portrait of the bride", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "How many drawers are opened?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "continue" },
-        { "texto": "2", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is a feature of the chairs?",
-      "opciones": [
-        { "texto": "They have no backrest", "accion": "repeat" },
-        { "texto": "They have a hole", "accion": "continue" },
-        { "texto": "Nothing, they are just old", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "What is on top of the piano?",
-      "opciones": [
-        { "texto": "Bottles", "accion": "continue" },
-        { "texto": "Lamps", "accion": "repeat" },
-        { "texto": "Paintings", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Which musical instrument is there?",
-      "opciones": [
-        { "texto": "Guitar", "accion": "repeat" },
-        { "texto": "French horn", "accion": "repeat" },
-        { "texto": "Piano", "accion": "continue" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room8",
+    "Name": "Hallway",
+    "Descripcion": "A tunnel-like feeling. The walls seem to lean inward. There is peripheral distortion that stretches the hallway, making it feel like a recurring fever dream where the end is never reached.",
+    "quiz_pool": [
+      {
+        "pregunta": "Is there a staircase?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is not on top of the shelf?",
+        "opciones": [
+          {
+            "texto": "A mirror",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Hair sticks",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Baby wipes",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many people appear in the picture above the shelf?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any painting with a dog?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any painting with a cat?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "When was the wedding?",
+        "opciones": [
+          {
+            "texto": "October 1969",
+            "accion": "continue"
+          },
+          {
+            "texto": "January 1972",
+            "accion": "repeat"
+          },
+          {
+            "texto": "May 1954",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Where was the wedding?",
+        "opciones": [
+          {
+            "texto": "Arizona",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Alaska",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Alabama",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Who got married?",
+        "opciones": [
+          {
+            "texto": "Isabel and Maxime",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Sharon and Gregory",
+            "accion": "continue"
+          },
+          {
+            "texto": "Anne and Gilbert",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is the painting inside the shelf drawer about?",
+        "opciones": [
+          {
+            "texto": "A still life with vases",
+            "accion": "repeat"
+          },
+          {
+            "texto": "A beach landscape",
+            "accion": "repeat"
+          },
+          {
+            "texto": "A self-portrait of the bride",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many drawers are opened?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "continue"
+          },
+          {
+            "texto": "2",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is a feature of the chairs?",
+        "opciones": [
+          {
+            "texto": "They have no backrest",
+            "accion": "repeat"
+          },
+          {
+            "texto": "They have a hole",
+            "accion": "continue"
+          },
+          {
+            "texto": "Nothing, they are just old",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "What is on top of the piano?",
+        "opciones": [
+          {
+            "texto": "Bottles",
+            "accion": "continue"
+          },
+          {
+            "texto": "Lamps",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Paintings",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Which musical instrument is there?",
+        "opciones": [
+          {
+            "texto": "Guitar",
+            "accion": "repeat"
+          },
+          {
+            "texto": "French horn",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Piano",
+            "accion": "continue"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:07:26.000 --> 00:08:52.000
 {
-  "Room": "Room9",
-  "Name": "Second living room",
-  "Descripcion": "The deer head is the only anchor in the room. Its glass eyes have a watery depth, as if something were looking back. The air looks colder here, rendered in deep blues and heavy shadows.",
-  "quiz_pool": [
-    {
-      "pregunta": "Is there a fireplace?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there any Coca-Cola?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a bull head?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there any animal?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "How many bookshelves are there?",
-      "opciones": [
-        { "texto": "0", "accion": "repeat" },
-        { "texto": "1", "accion": "repeat" },
-        { "texto": "2", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "Is there a sofa?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room9",
+    "Name": "Second living room",
+    "Descripcion": "The deer head is the only anchor in the room. Its glass eyes have a watery depth, as if something were looking back. The air looks colder here, rendered in deep blues and heavy shadows.",
+    "quiz_pool": [
+      {
+        "pregunta": "Is there a fireplace?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any Coca-Cola?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a bull head?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there any animal?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "How many bookshelves are there?",
+        "opciones": [
+          {
+            "texto": "0",
+            "accion": "repeat"
+          },
+          {
+            "texto": "1",
+            "accion": "repeat"
+          },
+          {
+            "texto": "2",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a sofa?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:08:52.000 --> 00:09:42.000
 {
-  "Room": "Room10",
-  "Name": "Kitchen",
-  "Descripcion": "A metallic chaos. The cans on the stove are covered with a velvety rust patina. The hood on the wall reflects light with unnatural clarity, cleaning that specific corner of the screen and acting as a hypnotic focal point.",
-  "quiz_pool": [
-    {
-      "pregunta": "What is hanging on the wall?",
-      "opciones": [
-        { "texto": "A clock", "accion": "continue" },
-        { "texto": "An amulet", "accion": "repeat" },
-        { "texto": "A calendar", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there an air fryer?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    },
-    {
-      "pregunta": "What color is the refrigerator?",
-      "opciones": [
-        { "texto": "Green", "accion": "continue" },
-        { "texto": "White", "accion": "repeat" },
-        { "texto": "Yellow", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a hood?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Does the house beg to be blessed?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a wooden bench?",
-      "opciones": [
-        { "texto": "Yes", "accion": "continue" },
-        { "texto": "No", "accion": "repeat" }
-      ]
-    },
-    {
-      "pregunta": "Is there a crib?",
-      "opciones": [
-        { "texto": "Yes", "accion": "repeat" },
-        { "texto": "No", "accion": "continue" }
-      ]
-    }
-  ]
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room10",
+    "Name": "Kitchen",
+    "Descripcion": "A metallic chaos. The cans on the stove are covered with a velvety rust patina. The hood on the wall reflects light with unnatural clarity, cleaning that specific corner of the screen and acting as a hypnotic focal point.",
+    "quiz_pool": [
+      {
+        "pregunta": "What is hanging on the wall?",
+        "opciones": [
+          {
+            "texto": "A clock",
+            "accion": "continue"
+          },
+          {
+            "texto": "An amulet",
+            "accion": "repeat"
+          },
+          {
+            "texto": "A calendar",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there an air fryer?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      },
+      {
+        "pregunta": "What color is the refrigerator?",
+        "opciones": [
+          {
+            "texto": "Green",
+            "accion": "continue"
+          },
+          {
+            "texto": "White",
+            "accion": "repeat"
+          },
+          {
+            "texto": "Yellow",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a hood?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Does the house beg to be blessed?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a wooden bench?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "continue"
+          },
+          {
+            "texto": "No",
+            "accion": "repeat"
+          }
+        ]
+      },
+      {
+        "pregunta": "Is there a crib?",
+        "opciones": [
+          {
+            "texto": "Yes",
+            "accion": "repeat"
+          },
+          {
+            "texto": "No",
+            "accion": "continue"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 00:09:42.000 --> 00:09:52.000
 {
-  "Room": "Room11",
-  "Name": "Exit",
-  "Descripcion": "Visual relief is brief. The garden light is flat and lifeless. As the camera pulls away, the house becomes a dark stain in the landscape, a silhouette that seems to suck color from everything around it.",
-  "quiz_pool": []
+  "type": "metadata",
+  "action": "render-room",
+  "payload": {
+    "Room": "Room11",
+    "Name": "Exit",
+    "Descripcion": "Visual relief is brief. The garden light is flat and lifeless. As the camera pulls away, the house becomes a dark stain in the landscape, a silhouette that seems to suck color from everything around it.",
+    "quiz_pool": []
+  }
 }
+
