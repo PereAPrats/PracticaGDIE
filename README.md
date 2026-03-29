@@ -6,7 +6,7 @@ Experiencia interactiva con reproducción de vídeo avanzada, streaming adaptati
 
 ## 🚀 Enlaces Directos
 * **🌐 Acceso a la Web:** [gdie2607.ltim.uib.es](http://gdie2607.ltim.uib.es)
-* **📖 Documentación Completa:** [Wiki del Proyecto]([https://github.com/PereAPrats/PracticaGDIE.wiki.git])
+* **📖 Documentación Completa:** [Wiki del Proyecto](https://github.com/PereAPrats/PracticaGDIE/wiki)
 
 ---
 
