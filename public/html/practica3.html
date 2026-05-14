@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScapeRoom GDIE - Práctica 3</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Socket.IO client -->
+    <script src="/socket.io/socket.io.min.js"></script>
+</head>
+<body>
+
+    <!-- Vista principal de la práctica: player, metadatos, mapa y capítulos en una sola pantalla. -->
+
+    <div id="header-placeholder"></div>
+
+    <main class="main-content">
+    <div class="container-custom-p3">
+        
+        <div class="grid-item item-video item-video-p3">
+            <div class="video-player">
+                <video id="videoPlayer" src="/assets/videos/mp4/Video_1080p.mp4">
+                    <track id="trackEs" src="/media/subtitlesEsp.vtt" kind="subtitles" srclang="es" label="Español">
+                    <track id="trackEn" src="/media/subtitlesEng.vtt" kind="subtitles" srclang="en" label="English">
+                    <track id="pistas" label="Metadatos" kind="metadata" src="/media/metadataEsp.vtt" default>                        
+                </video>
+
+                <!-- Aqui dejamos el estilo del overlay en CSS para evitar duplicar reglas en el HTML. -->
+                <div id="videoOverlay">
+                    <div id="quizContent"></div>
+                </div>
+
+                <!-- CONTROLES SOBRE EL VIDEO -->
+                <div class="video-controls">
+                    <div class="progress-container">
+                        <input type="range" id="progress" value="0" min="0" step="0.1">
+                    </div>
+                    <div class="controls-row">
+                        <div class="left-controls">
+                            <button id="playPause">
+                                <img src="../assets/img/play.svg" id="playIcon" class="control-icon" alt="Play">
+                            </button>
+                            <button id="back10">
+                                <img src="../assets/img/back.svg" class="control-icon" alt="Atrás 10s">
+                            </button>
+                            <button id="forward10">
+                                <img src="../assets/img/forward.svg" class="control-icon" alt="Adelante 10s">
+                            </button>
+                            <span id="time">0:00 / 0:00</span>
+                    </div>
+                    <div class="right-controls">
+                      <div class="settings-wrapper" id="settingsWrapper">
+                            <button id="settingsToggle" aria-label="Ajustes" title="Ajustes">
+                                <img src="../assets/img/setting.svg" class="control-icon" alt="Ajustes">
+                            </button>
+                            <div id="settingsMenu" class="settings-menu" aria-hidden="true">
+                                <div class="settings-item" data-section="subtitles">
+                                    <button class="settings-main-btn" type="button">
+                                        <span>Subtitulos</span>
+                                        <span class="settings-current" id="subtitlesCurrent">OFF</span>
+                                    </button>
+                                    <div class="settings-submenu">
+                                        <button class="settings-option" type="button" data-setting="subtitles" data-value="off">Off</button>
+                                        <button class="settings-option" type="button" data-setting="subtitles" data-value="es">Español</button>
+                                        <button class="settings-option" type="button" data-setting="subtitles" data-value="en">English</button>
+                                    </div>
+                                </div>
+                                <div class="settings-item" data-section="quality">
+                                    <button class="settings-main-btn" type="button">
+                                        <span>Calidad</span>
+                                        <span class="settings-current" id="qualityCurrent">1080p</span>
+                                    </button>
+                                <div class="settings-submenu">
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="4k">4K</button>
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="1080p">1080p</button>
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="720p">720p</button>
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="360p">360p</button>
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="HLS">HLS</button>
+                                    <button class="settings-option" type="button" data-setting="quality" data-value="DASH">DASH</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mute">
+                        <img src="../assets/img/volume.svg" id="muteIcon" class="control-icon" alt="Mute">
+                    </button>
+                    <button id="fullscreen">
+                        <img src="../assets/img/expand.svg" id="fsIcon" class="control-icon" alt="Fullscreen">
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="videoStatus" class="status"></div>
+
+        </div>
+        </div>
+
+        <div class="sidebar-p3-chat">
+            <div class="grid-item item-nombre">
+                Usuario: <span id="userIdDisplay">...</span>
+            </div>
+            
+            <div class="grid-item item-chat-vertical">
+                <span class="chat-label">Chat en tiempo real</span>
+                <input type="text" id="chatInput" placeholder="Escribe aquí...">
+                <button id="sendMsgBtn" class="btn-marron-p3">ENVIAR</button>
+            </div>
+        </div>
+
+        <div class="row-bottom-p3">
+            <div class="col-6">
+                <button id="openQrModal" class="grid-item qr-trigger" type="button" aria-haspopup="dialog" aria-controls="qrModal">
+                    <span class="qr-trigger-label">Abrir código QR</span>
+                </button>
+            </div>
+            
+            <div class="col-6">
+                <div class="grid-item item-texto podium-panel">
+                    <p class="podium-title">PÓDIUM</p>
+                    <div id="podiumList">Esperando...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+    <div id="qrModal" class="qr-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+        <div class="qr-modal-card">
+            <button id="closeQrModal" class="qr-modal-close" type="button" aria-label="Cerrar">X</button>
+            <h3 id="qrModalTitle">Código QR</h3>
+            <img src="../assets/img/qr-placeholder.png" alt="Código QR ampliado" class="qr-modal-image">
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/main.js"></script>
+    <script src="/js/semantic.js"></script>
+    <script src="/js/player.js"></script>
+    <script src="/js/mse.js"></script>
+    <script src="/js/webrtc.js"></script>
+    <script src="/js/chat-p2p.js"></script>
+    <script>
+        (function () {
+            const modal = document.getElementById('qrModal');
+            const openBtn = document.getElementById('openQrModal');
+            const closeBtn = document.getElementById('closeQrModal');
+
+            if (!modal || !openBtn || !closeBtn) {
+                return;
+            }
+
+            function openModal() {
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeModal() {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            openBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
