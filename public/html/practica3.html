@@ -8,8 +8,7 @@
     <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <!-- Socket.IO client -->
-    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -19,6 +18,20 @@
 
     <main class="main-content">
     <div class="container-custom-p3">
+
+        <div class="row-bottom-p3">
+            <div class="col-9">
+                <div class="grid-item item-nombre">
+                Usuario: <span id="userIdDisplay">...</span>
+                </div>
+            </div>
+            
+            <div class="col-3">
+                <button id="openQrModal" class="grid-item qr-trigger" type="button" aria-haspopup="dialog" aria-controls="qrModal">
+                    <span class="qr-trigger-label">Abrir código QR</span>
+                </button>
+            </div>           
+        </div>
         
         <div class="grid-item item-video item-video-p3">
             <div class="video-player">
@@ -99,10 +112,6 @@
         </div>
 
         <div class="sidebar-p3-chat">
-            <div class="grid-item item-nombre">
-                Usuario: <span id="userIdDisplay">...</span>
-            </div>
-            
             <div class="grid-item item-chat-vertical">
                 <span class="chat-label">Chat en tiempo real</span>
                 <input type="text" id="chatInput" placeholder="Escribe aquí...">
@@ -110,20 +119,7 @@
             </div>
         </div>
 
-        <div class="row-bottom-p3">
-            <div class="col-6">
-                <button id="openQrModal" class="grid-item qr-trigger" type="button" aria-haspopup="dialog" aria-controls="qrModal">
-                    <span class="qr-trigger-label">Abrir código QR</span>
-                </button>
-            </div>
-            
-            <div class="col-6">
-                <div class="grid-item item-texto podium-panel">
-                    <p class="podium-title">PÓDIUM</p>
-                    <div id="podiumList">Esperando...</div>
-                </div>
-            </div>
-        </div>
+        
 
     </div>
 </main>

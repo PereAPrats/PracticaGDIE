@@ -825,7 +825,7 @@ body {
 
 .container-custom-p3 > .item-video-p3 {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
 }
 
 /* Override any global fixed heights for the P3 layout so rows align with grid gaps */
@@ -850,7 +850,7 @@ body {
     display: flex;
     gap: 15px;
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
 }
 
 .row-bottom-p3 > .col-6 {
@@ -1010,8 +1010,7 @@ body {
 
 .qr-trigger {
     width: 100%;
-    height: auto;
-    min-height: 120px;
+    height: 12vh;
     border: 2px solid var(--marron-oscuro);
     border-radius: 5px;
     background: #fffdf4;
@@ -1077,7 +1076,3 @@ body {
     cursor: pointer;
     font-weight: 700;
 }
-
-
-
-
