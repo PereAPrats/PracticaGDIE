@@ -114,9 +114,17 @@
 
         <div class="sidebar-p3-chat">
             <div class="grid-item item-chat-vertical">
-                <span class="chat-label">Chat en tiempo real</span>
-                <input type="text" id="chatInput" placeholder="Escribe aquí...">
-                <button id="sendMsgBtn" class="btn-marron-p3">ENVIAR</button>
+                <div class="chat-header">
+                    <span class="chat-label">CHAT</span>
+                    <span id="chatUsersCount" class="chat-users-count">1 conectado</span>
+                </div>
+                <div class="chat-panel">
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chatInput" placeholder="Escribe aquí...">
+                        <button id="sendMsgBtn" class="btn-marron-p3">ENVIAR</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -141,156 +149,10 @@
     <script src="/js/semantic.js"></script>
     <script src="/js/player.js"></script>
     <script src="/js/mse.js"></script>
-    <script>
-        (function () {
-            const modal = document.getElementById('qrModal');
-            const openBtn = document.getElementById('openQrModal');
-            const closeBtn = document.getElementById('closeQrModal');
-
-            if (!modal || !openBtn || !closeBtn) {
-                return;
-            }
-
-            let qrGenerated = false;
-
-            function generateQR() {
-                // Solo generar una vez
-                if (qrGenerated) return;
-
-                const qrContainer = document.getElementById('qrCode');
-                const qrUrlDisplay = document.getElementById('qrUrl');
-                const roomNameDisplay = document.getElementById('qrRoomName');
-
-                // Limpiar contenedor
-                qrContainer.innerHTML = '';
-
-                // Construir URL para que otros se unan a la sala
-                const protocol = window.location.protocol;
-                const host = window.location.host;
-                const joinUrl = `${protocol}//${host}/html/practica3.html?room=${window.roomId}`;
-
-                // Mostrar room name
-                if (roomNameDisplay) {
-                    roomNameDisplay.textContent = window.roomId;
-                }
-
-                // Mostrar URL
-                if (qrUrlDisplay) {
-                    qrUrlDisplay.textContent = joinUrl;
-                }
-
-                // Generar QR con QRCode.js
-                if (typeof QRCode !== 'undefined') {
-                    try {
-                        new QRCode(qrContainer, {
-                            text: joinUrl,
-                            width: 250,
-                            height: 250,
-                            colorDark: '#000000',
-                            colorLight: '#ffffff',
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                        console.log('[QR] Código QR generado para sala:', window.roomId);
-                        qrGenerated = true;
-                    } catch (error) {
-                        console.error('[QR] Error generando QR:', error);
-                        qrContainer.textContent = 'Error generando QR';
-                    }
-                } else {
-                    console.warn('[QR] Librería QRCode no disponible');
-                    qrContainer.textContent = 'QRCode no cargado';
-                }
-            }
-
-            function openModal() {
-                generateQR(); // Generar QR cuando se abre
-                modal.classList.add('is-open');
-                modal.setAttribute('aria-hidden', 'false');
-            }
-
-            function closeModal() {
-                modal.classList.remove('is-open');
-                modal.setAttribute('aria-hidden', 'true');
-            }
-
-            openBtn.addEventListener('click', openModal);
-            closeBtn.addEventListener('click', closeModal);
-
-            modal.addEventListener('click', function (event) {
-                if (event.target === modal) {
-                    closeModal();
-                }
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-                    closeModal();
-                }
-            });
-        })();
-    </script>
-
-    <!-- Inicialización de Socket.IO para señalización WebRTC -->
-    <script>
-        (function () {
-            // Extraer parámetros de URL
-            const params = new URLSearchParams(window.location.search);
-            const userId = params.get('user') || 'user_' + Math.random().toString(36).substr(2, 9);
-            const roomId = params.get('room') || 'room1';
-
-            // Mostrar userId en la página
-            const userDisplay = document.getElementById('userIdDisplay');
-            if (userDisplay) {
-                userDisplay.textContent = userId;
-            }
-
-            // Guardar globalmente
-            window.userId = userId;
-            window.roomId = roomId;
-
-            // Esperar a que Socket.IO esté disponible
-            if (typeof io !== 'undefined') {
-                const socket = io();
-                window.socket = socket;
-
-                socket.on('connect', () => {
-                    console.log('[SIGNALING] Conectado a servidor. Socket ID:', socket.id);
-                    // Unirse a la sala
-                    socket.emit('join-room', roomId, userId);
-                });
-
-                socket.on('users-in-room', (users) => {
-                    console.log('[SIGNALING] Usuarios en sala:', users);
-                });
-
-                socket.on('user-joined', (data) => {
-                    console.log('[SIGNALING] Usuario se unió:', data.userId);
-                });
-
-                socket.on('receive-offer', (data) => {
-                    console.log('[SIGNALING] Oferta recibida de:', data.from);
-                });
-
-                socket.on('receive-answer', (data) => {
-                    console.log('[SIGNALING] Respuesta recibida de:', data.from);
-                });
-
-                socket.on('receive-ice-candidate', (data) => {
-                    console.log('[SIGNALING] ICE candidate recibido de:', data.from);
-                });
-
-                socket.on('user-left', (data) => {
-                    console.log('[SIGNALING] Usuario desconectado:', data.userId);
-                });
-
-                socket.on('disconnect', () => {
-                    console.log('[SIGNALING] Desconectado del servidor');
-                });
-            } else {
-                console.warn('[SIGNALING] Socket.IO no cargado');
-            }
-        })();
-    </script>
+    <script src="/js/qr-modal.js"></script>
+    <script src="/js/quiz-sync.js"></script>
+    <script src="/js/signaling-init.js"></script>
+    <script src="/js/chat.js"></script>
 
 </body>
 </html>

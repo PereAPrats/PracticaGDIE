@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const rooms = {}; // { roomId: { users: {userId: socket}, offers: {} } }
 
 io.on('connection', (socket) => {
-  console.log(`[SIGNALING] Usuario conectado: ${socket.id}`);
+  // No loguear aquí, solo cuando el usuario se une a una sala con su userId
 
   // Unirse a una sala
   socket.on('join-room', (roomId, userId) => {
@@ -46,9 +46,18 @@ io.on('connection', (socket) => {
     if (!rooms[roomId]) {
       rooms[roomId] = { users: {}, offers: {} };
     }
-    rooms[roomId].users[userId] = socket.id;
 
-    console.log(`[SIGNALING] ${userId} se unió a sala ${roomId}`);
+    // Almacenar MÚLTIPLES sockets por usuario (un user puede tener 2+ dispositivos)
+    if (!rooms[roomId].users[userId]) {
+      rooms[roomId].users[userId] = [];
+    }
+    rooms[roomId].users[userId].push(socket.id);
+
+    const userConnectionCount = rooms[roomId].users[userId].length;
+    console.log(`[SIGNALING] ${userId} se unió a sala ${roomId} (conexión ${userConnectionCount})`);
+    
+    // Emitir a ESTE cliente cuántas conexiones propias tiene ahora
+    socket.emit('my-connection-count', { count: userConnectionCount });
     
     // Notificar a otros usuarios en la sala
     socket.to(roomId).emit('user-joined', { userId, socketId: socket.id });
@@ -81,21 +90,63 @@ io.on('connection', (socket) => {
     io.to(rooms[roomId].users[to]).emit('receive-ice-candidate', { from: socket.userId, candidate });
   });
 
+  // Recibir y reenviar PREGUNTAS (Quiz)
+  socket.on('send-question', (data) => {
+    const { to, question } = data;
+    const roomId = socket.roomId;
+    console.log(`[QUIZ] Pregunta de ${socket.userId} a ${to}: ${question.substring(0, 50)}...`);
+    io.to(rooms[roomId].users[to]).emit('receive-question', { from: socket.userId, ...data });
+  });
+
+  // Recibir y reenviar RESPUESTAS (Quiz)
+  socket.on('send-answer', (data) => {
+    const { to, answer } = data;
+    const roomId = socket.roomId;
+    console.log(`[QUIZ] Respuesta de ${socket.userId} a ${to}: ${answer}`);
+    io.to(rooms[roomId].users[to]).emit('receive-answer', { from: socket.userId, ...data });
+  });
+
+  // Recibir y reenviar MENSAJES DE CHAT
+  socket.on('send-chat-message', (data) => {
+    const roomId = socket.roomId;
+    const userId = socket.userId;
+    console.log(`[CHAT] Mensaje de ${userId}: ${data.message.substring(0, 50)}...`);
+    // Enviar a todos en la sala (incluyendo al remitente)
+    io.to(roomId).emit('receive-chat-message', {
+      userId: userId,
+      message: data.message,
+      timestamp: data.timestamp
+    });
+  });
+
   // Desconexión
   socket.on('disconnect', () => {
     const roomId = socket.roomId;
     const userId = socket.userId;
     
-    if (rooms[roomId]) {
-      delete rooms[roomId].users[userId];
-      io.to(roomId).emit('user-left', { userId });
+    if (rooms[roomId] && rooms[roomId].users[userId]) {
+      // Remover SOLO este socket específico del usuario
+      const socketIndex = rooms[roomId].users[userId].indexOf(socket.id);
+      if (socketIndex > -1) {
+        rooms[roomId].users[userId].splice(socketIndex, 1);
+      }
+      
+      const remainingConnections = rooms[roomId].users[userId].length;
+      console.log(`[SIGNALING] ${userId} desconectado (conexiones restantes: ${remainingConnections})`);
+      
+      // Si el usuario no tiene más conexiones, eliminarlo y notificar
+      if (remainingConnections === 0) {
+        delete rooms[roomId].users[userId];
+        io.to(roomId).emit('user-left', { userId });
+      } else {
+        // Notificar al usuario que le quedan menos conexiones
+        io.to(roomId).emit('my-connection-count-changed', { userId, count: remainingConnections });
+      }
       
       if (Object.keys(rooms[roomId].users).length === 0) {
         delete rooms[roomId];
       }
     }
-    
-    console.log(`[SIGNALING] ${userId} desconectado`);
   });
 });
 
