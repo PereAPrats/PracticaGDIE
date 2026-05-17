@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -127,8 +128,11 @@
     <div id="qrModal" class="qr-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
         <div class="qr-modal-card">
             <button id="closeQrModal" class="qr-modal-close" type="button" aria-label="Cerrar">X</button>
-            <h3 id="qrModalTitle">Código QR</h3>
-            <img src="../assets/img/qr-placeholder.png" alt="Código QR ampliado" class="qr-modal-image">
+            <h3 id="qrModalTitle">Código QR - Sala: <span id="qrRoomName">room1</span></h3>
+            <div id="qrCodeContainer" style="display: flex; justify-content: center; align-items: center; padding: 20px; background: white; border-radius: 8px;">
+                <div id="qrCode"></div>
+            </div>
+            <p id="qrUrl" style="text-align: center; font-size: 12px; word-break: break-all; margin-top: 10px; color: #666;"></p>
         </div>
     </div>
 
@@ -137,8 +141,6 @@
     <script src="/js/semantic.js"></script>
     <script src="/js/player.js"></script>
     <script src="/js/mse.js"></script>
-    <script src="/js/webrtc.js"></script>
-    <script src="/js/chat-p2p.js"></script>
     <script>
         (function () {
             const modal = document.getElementById('qrModal');
@@ -149,7 +151,59 @@
                 return;
             }
 
+            let qrGenerated = false;
+
+            function generateQR() {
+                // Solo generar una vez
+                if (qrGenerated) return;
+
+                const qrContainer = document.getElementById('qrCode');
+                const qrUrlDisplay = document.getElementById('qrUrl');
+                const roomNameDisplay = document.getElementById('qrRoomName');
+
+                // Limpiar contenedor
+                qrContainer.innerHTML = '';
+
+                // Construir URL para que otros se unan a la sala
+                const protocol = window.location.protocol;
+                const host = window.location.host;
+                const joinUrl = `${protocol}//${host}/html/practica3.html?room=${window.roomId}`;
+
+                // Mostrar room name
+                if (roomNameDisplay) {
+                    roomNameDisplay.textContent = window.roomId;
+                }
+
+                // Mostrar URL
+                if (qrUrlDisplay) {
+                    qrUrlDisplay.textContent = joinUrl;
+                }
+
+                // Generar QR con QRCode.js
+                if (typeof QRCode !== 'undefined') {
+                    try {
+                        new QRCode(qrContainer, {
+                            text: joinUrl,
+                            width: 250,
+                            height: 250,
+                            colorDark: '#000000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                        console.log('[QR] Código QR generado para sala:', window.roomId);
+                        qrGenerated = true;
+                    } catch (error) {
+                        console.error('[QR] Error generando QR:', error);
+                        qrContainer.textContent = 'Error generando QR';
+                    }
+                } else {
+                    console.warn('[QR] Librería QRCode no disponible');
+                    qrContainer.textContent = 'QRCode no cargado';
+                }
+            }
+
             function openModal() {
+                generateQR(); // Generar QR cuando se abre
                 modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
             }
@@ -173,6 +227,68 @@
                     closeModal();
                 }
             });
+        })();
+    </script>
+
+    <!-- Inicialización de Socket.IO para señalización WebRTC -->
+    <script>
+        (function () {
+            // Extraer parámetros de URL
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get('user') || 'user_' + Math.random().toString(36).substr(2, 9);
+            const roomId = params.get('room') || 'room1';
+
+            // Mostrar userId en la página
+            const userDisplay = document.getElementById('userIdDisplay');
+            if (userDisplay) {
+                userDisplay.textContent = userId;
+            }
+
+            // Guardar globalmente
+            window.userId = userId;
+            window.roomId = roomId;
+
+            // Esperar a que Socket.IO esté disponible
+            if (typeof io !== 'undefined') {
+                const socket = io();
+                window.socket = socket;
+
+                socket.on('connect', () => {
+                    console.log('[SIGNALING] Conectado a servidor. Socket ID:', socket.id);
+                    // Unirse a la sala
+                    socket.emit('join-room', roomId, userId);
+                });
+
+                socket.on('users-in-room', (users) => {
+                    console.log('[SIGNALING] Usuarios en sala:', users);
+                });
+
+                socket.on('user-joined', (data) => {
+                    console.log('[SIGNALING] Usuario se unió:', data.userId);
+                });
+
+                socket.on('receive-offer', (data) => {
+                    console.log('[SIGNALING] Oferta recibida de:', data.from);
+                });
+
+                socket.on('receive-answer', (data) => {
+                    console.log('[SIGNALING] Respuesta recibida de:', data.from);
+                });
+
+                socket.on('receive-ice-candidate', (data) => {
+                    console.log('[SIGNALING] ICE candidate recibido de:', data.from);
+                });
+
+                socket.on('user-left', (data) => {
+                    console.log('[SIGNALING] Usuario desconectado:', data.userId);
+                });
+
+                socket.on('disconnect', () => {
+                    console.log('[SIGNALING] Desconectado del servidor');
+                });
+            } else {
+                console.warn('[SIGNALING] Socket.IO no cargado');
+            }
         })();
     </script>
 
