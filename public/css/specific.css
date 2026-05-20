@@ -1,0 +1,379 @@
+/* Specific styles for Practica 3 and Sala Selector only. Base styles stay in style.css */
+
+/* Extra grid columns used by P3 */
+.col-9 { flex: 0 0 calc(75% - 15px); }
+.col-12 { flex: 0 0 calc(100% - 15px); }
+
+/* P3 layout */
+.container-custom-p3 {
+    display: grid;
+    grid-template-columns: calc(75% - 1.5px) calc(25% - 1.5px);
+    grid-template-rows: auto auto;
+    gap: 15px;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.container-custom-p3 > .item-video-p3 {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.container-custom-p3 .item-video {
+    height: auto;
+    min-height: 0;
+}
+
+.container-custom-p3 .item-video-p3 {
+    min-height: 0;
+    position: relative;
+}
+
+.container-custom-p3 > .sidebar-p3-chat {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.row-bottom-p3 {
+    display: flex;
+    gap: 15px;
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.row-bottom-p3 .item-nombre {
+    height: 52px;
+    min-height: 52px;
+}
+
+.sidebar-p3-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-self: stretch;
+}
+
+.sidebar-p3-chat > .grid-item {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.item-chat-vertical {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: flex-start;
+}
+
+.item-chat-vertical .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
+.item-chat-vertical .chat-label {
+    color: var(--marron-oscuro);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.item-chat-vertical .chat-users-count {
+    color: var(--marron-oscuro);
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(62, 39, 35, 0.08);
+    white-space: nowrap;
+}
+
+.item-chat-vertical .chat-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1 1 auto;
+    min-height: 0;
+    border: 1px solid var(--marron-oscuro);
+    border-radius: 6px;
+    background: #fffdf7;
+    padding: 5px;
+}
+
+.item-chat-vertical #chatMessages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 70px;
+}
+
+.item-chat-vertical .chat-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.item-chat-vertical #chatInput {
+    flex: 1;
+    border: 2px solid var(--marron-oscuro);
+    border-radius: 5px;
+    background: #fffdf7;
+    color: var(--marron-oscuro);
+    padding: 5px 8px;
+    min-height: 34px;
+    font-size: 0.74rem;
+    outline: none;
+}
+
+.item-chat-vertical .btn-marron-p3 {
+    min-width: 92px;
+    border: 2px solid var(--marron-oscuro);
+    border-radius: 5px;
+    background: var(--marron-oscuro);
+    color: var(--crema);
+    font-weight: 700;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.chat-message {
+    background: #f0ebe0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--marron-oscuro);
+    word-wrap: break-word;
+    border-left: 3px solid var(--verde-oscuro);
+}
+
+.chat-message-own { border-left-color: var(--verde-oscuro); }
+.chat-message-other-1 { background: #e3f2e3; border-left-color: #2e7d32; }
+.chat-message-other-2 { background: #d8edd8; border-left-color: #388e3c; }
+.chat-message-other-3 { background: #cde8cf; border-left-color: #43a047; }
+.chat-message-other-4 { background: #c2e2c5; border-left-color: #4caf50; }
+.chat-message-other-5 { background: #b7ddbb; border-left-color: #66bb6a; }
+.chat-message-system {
+    background: #e8e4db;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #666;
+    text-align: center;
+    border-left: 3px solid #999;
+}
+
+.item-video-p3 #remoteVideo {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* QR modal in P3 */
+.qr-trigger {
+    width: 100%;
+    height: 52px;
+    border: 2px solid var(--marron-oscuro);
+    border-radius: 5px;
+    background: #fffdf4;
+    color: var(--marron-oscuro);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.qr-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(25, 18, 14, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 10px;
+}
+
+.qr-modal.is-open { display: flex; }
+
+.qr-modal-card {
+    width: min(900px, calc(100vw - 20px));
+    background: #fffdf4;
+    border: 2px solid var(--marron-oscuro);
+    border-radius: 8px;
+    padding: 10px 12px 14px;
+    position: relative;
+}
+
+.qr-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--marron-oscuro);
+    border-radius: 5px;
+    background: var(--marron-oscuro);
+    color: var(--crema);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+/* Sala selector */
+.selector-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--crema) 0%, #f0e8d8 100%);
+    padding: 40px 20px;
+}
+
+.selector-card { text-align: center; max-width: 800px; }
+.selector-subtitle { font-size: 1.2rem; color: var(--lila-texto); margin-bottom: 60px; font-weight: 300; }
+.room-options { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+
+.room-option {
+    padding: 60px 40px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.room-option.public { background: linear-gradient(135deg, var(--verde-oscuro) 0%, #2a5a3a 100%); }
+.room-option.private { background: linear-gradient(135deg, var(--marron-oscuro) 0%, #5a3a2a 100%); }
+.room-label { font-size: 1.5rem; }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal-card {
+    background: white;
+    border-radius: 16px;
+    padding: 50px;
+    max-width: 550px;
+    width: 90%;
+}
+
+.modal-title {
+    font-size: 2.2rem;
+    color: var(--verde-oscuro);
+    margin-bottom: 35px;
+    text-align: center;
+}
+
+.modal-actions,
+.modal-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.modal-actions { margin-bottom: 25px; }
+.modal-footer { margin-top: 30px; }
+
+.action-btn,
+.btn-confirm,
+.btn-cancel {
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.action-btn {
+    border: 2px solid var(--verde-oscuro);
+    background: white;
+    color: var(--verde-oscuro);
+}
+
+.action-btn.active,
+.action-btn:hover {
+    background: var(--verde-oscuro);
+    color: white;
+}
+
+.form-group { margin-bottom: 25px; display: none; }
+.form-group.active { display: block; }
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: var(--verde-oscuro);
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+.error-msg {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    display: none;
+}
+
+.btn-confirm {
+    background: var(--verde-oscuro);
+    color: white;
+    border: none;
+}
+
+.btn-cancel {
+    background: #f0f0f0;
+    color: var(--verde-oscuro);
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .col-9, .col-6, .col-3, .col-12 { flex: 0 0 100%; }
+    .container-custom-p3 {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .container-custom-p3 > .sidebar-p3-chat {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    .row-bottom-p3 { grid-column: 1; grid-row: auto; }
+
+    .room-options { grid-template-columns: 1fr; gap: 25px; }
+    .room-option { padding: 40px 25px; }
+    .modal-card { padding: 35px; }
+}

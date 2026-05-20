@@ -34,6 +34,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ========== SIGNALING ==========
 const rooms = {}; // { roomId: { users: {userId: socket}, offers: {} } }
 
+function emitToUser(roomId, userId, eventName, payload) {
+  const room = rooms[roomId];
+  const socketIds = room && room.users ? room.users[userId] : null;
+
+  if (!Array.isArray(socketIds) || socketIds.length === 0) {
+    console.warn(`[SIGNALING] Usuario destino no encontrado: ${userId} en sala ${roomId}`);
+    return;
+  }
+
+  io.to(socketIds).emit(eventName, payload);
+}
+
 io.on('connection', (socket) => {
   // No loguear aquí, solo cuando el usuario se une a una sala con su userId
 
@@ -71,7 +83,7 @@ io.on('connection', (socket) => {
     const { to, offer } = data;
     const roomId = socket.roomId;
     console.log(`[SIGNALING] Offer de ${socket.userId} a ${to}`);
-    io.to(rooms[roomId].users[to]).emit('receive-offer', { from: socket.userId, offer });
+    emitToUser(roomId, to, 'receive-offer', { from: socket.userId, offer });
   });
 
   // Recibir y reenviar ANSWER
@@ -79,7 +91,7 @@ io.on('connection', (socket) => {
     const { to, answer } = data;
     const roomId = socket.roomId;
     console.log(`[SIGNALING] Answer de ${socket.userId} a ${to}`);
-    io.to(rooms[roomId].users[to]).emit('receive-answer', { from: socket.userId, answer });
+    emitToUser(roomId, to, 'receive-answer', { from: socket.userId, answer });
   });
 
   // Recibir y reenviar ICE CANDIDATES
@@ -87,23 +99,7 @@ io.on('connection', (socket) => {
     const { to, candidate } = data;
     const roomId = socket.roomId;
     console.log(`[SIGNALING] ICE candidate de ${socket.userId} a ${to}`);
-    io.to(rooms[roomId].users[to]).emit('receive-ice-candidate', { from: socket.userId, candidate });
-  });
-
-  // Recibir y reenviar PREGUNTAS (Quiz)
-  socket.on('send-question', (data) => {
-    const { to, question } = data;
-    const roomId = socket.roomId;
-    console.log(`[QUIZ] Pregunta de ${socket.userId} a ${to}: ${question.substring(0, 50)}...`);
-    io.to(rooms[roomId].users[to]).emit('receive-question', { from: socket.userId, ...data });
-  });
-
-  // Recibir y reenviar RESPUESTAS (Quiz)
-  socket.on('send-answer', (data) => {
-    const { to, answer } = data;
-    const roomId = socket.roomId;
-    console.log(`[QUIZ] Respuesta de ${socket.userId} a ${to}: ${answer}`);
-    io.to(rooms[roomId].users[to]).emit('receive-answer', { from: socket.userId, ...data });
+    emitToUser(roomId, to, 'receive-ice-candidate', { from: socket.userId, candidate });
   });
 
   // Recibir y reenviar MENSAJES DE CHAT

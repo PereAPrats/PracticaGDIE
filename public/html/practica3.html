@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScapeRoom GDIE - Práctica 3</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/specific.css">
     <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -23,7 +24,7 @@
         <div class="row-bottom-p3">
             <div class="col-9">
                 <div class="grid-item item-nombre">
-                Usuario: <span id="userIdDisplay">...</span>
+                Usuario: <span id="userIdDisplay"> ...</span>
                 </div>
             </div>
             
@@ -112,6 +113,9 @@
         </div>
         </div>
 
+        <!-- Placeholder for WebRTC panel (loaded from partial if available) -->
+        <!--div id="webrtcPanelPlaceholder"></div-->
+
         <div class="sidebar-p3-chat">
             <div class="grid-item item-chat-vertical">
                 <div class="chat-header">
@@ -136,7 +140,7 @@
     <div id="qrModal" class="qr-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
         <div class="qr-modal-card">
             <button id="closeQrModal" class="qr-modal-close" type="button" aria-label="Cerrar">X</button>
-            <h3 id="qrModalTitle">Código QR - Sala: <span id="qrRoomName">room1</span></h3>
+            <h3 id="qrModalTitle">Código QR: </h3>
             <div id="qrCodeContainer" style="display: flex; justify-content: center; align-items: center; padding: 20px; background: white; border-radius: 8px;">
                 <div id="qrCode"></div>
             </div>
@@ -150,7 +154,6 @@
     <script src="/js/player.js"></script>
     <script src="/js/mse.js"></script>
     <script src="/js/qr-modal.js"></script>
-    <script src="/js/quiz-sync.js"></script>
     <script src="/js/signaling-init.js"></script>
     <script src="/js/chat.js"></script>
 

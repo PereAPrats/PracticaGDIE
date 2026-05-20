@@ -4,316 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScapeRoom GDIE - Seleccionar Sala</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/specific.css">
     <link rel="icon" type="image/x-icon" sizes="32x32" href="../assets/img/icono.png">
-    <style>
-        .selector-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--crema) 0%, #f0e8d8 100%);
-            padding: 40px 20px;
-        }
-
-        .selector-card {
-            text-align: center;
-            max-width: 800px;
-        }
-
-        .selector-title {
-            font-size: 3rem;
-            color: var(--verde-oscuro);
-            margin-bottom: 20px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .selector-subtitle {
-            font-size: 1.2rem;
-            color: var(--lila-texto);
-            margin-bottom: 60px;
-            font-weight: 300;
-        }
-
-        .room-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .room-option {
-            padding: 60px 40px;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            color: white;
-            font-size: 1.3rem;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .room-option::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.1);
-            transition: left 0.3s;
-            z-index: 0;
-        }
-
-        .room-option:hover::before {
-            left: 100%;
-        }
-
-        .room-option:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
-        }
-
-        .room-option.public {
-            background: linear-gradient(135deg, var(--verde-oscuro) 0%, #2a5a3a 100%);
-        }
-
-        .room-option.private {
-            background: linear-gradient(135deg, var(--marron-oscuro) 0%, #5a3a2a 100%);
-        }
-
-        .room-icon {
-            font-size: 4rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .room-label {
-            font-size: 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .room-description {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-            font-weight: 300;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-card {
-            background: white;
-            border-radius: 16px;
-            padding: 50px;
-            max-width: 550px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(40px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-title {
-            font-size: 2.2rem;
-            color: var(--verde-oscuro);
-            margin-bottom: 35px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .modal-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .action-btn {
-            padding: 16px;
-            border: 2px solid var(--verde-oscuro);
-            border-radius: 10px;
-            background: white;
-            color: var(--verde-oscuro);
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .action-btn:hover {
-            background: var(--verde-oscuro);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .action-btn.active {
-            background: var(--verde-oscuro);
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            display: none;
-        }
-
-        .form-group.active {
-            display: block;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            color: var(--verde-oscuro);
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--verde-oscuro);
-            box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
-        }
-
-        .error-msg {
-            color: #d32f2f;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .modal-footer {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn-confirm {
-            padding: 14px;
-            background: var(--verde-oscuro);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-confirm:hover {
-            background: #2a5a3a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(27, 48, 34, 0.3);
-        }
-
-        .btn-cancel {
-            padding: 14px;
-            background: #f0f0f0;
-            color: var(--verde-oscuro);
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-cancel:hover {
-            background: #e0e0e0;
-        }
-
-        @media (max-width: 768px) {
-            .room-options {
-                grid-template-columns: 1fr;
-                gap: 25px;
-            }
-
-            .selector-title {
-                font-size: 2rem;
-            }
-
-            .room-option {
-                padding: 40px 25px;
-            }
-
-            .modal-card {
-                padding: 35px;
-            }
-        }
-    </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
 
     <main class="selector-container">
         <div class="selector-card">
-            <h1 class="selector-title">Selecciona tu Sala</h1>
             <p class="selector-subtitle">Elige el tipo de sala en la que deseas participar</p>
 
             <div class="room-options">
                 <button class="room-option public" id="publicBtn">
-                    <span class="room-icon">🌐</span>
                     <span class="room-label">Sala Pública</span>
-                    <span class="room-description">Conecta con cualquier usuario en tiempo real</span>
                 </button>
 
                 <button class="room-option private" id="privateBtn">
-                    <span class="room-icon">🔒</span>
+                  
                     <span class="room-label">Sala Privada</span>
-                    <span class="room-description">Control total del acceso a tu sala</span>
+                   
                 </button>
             </div>
         </div>
@@ -326,10 +36,10 @@
 
             <div class="modal-actions">
                 <button class="action-btn active" data-action="create" id="createBtn">
-                    ➕ Crear Sala
+                     Crear Sala
                 </button>
                 <button class="action-btn" data-action="join" id="joinBtn">
-                    🚪 Unirse
+                     Unirse
                 </button>
             </div>
 
@@ -356,114 +66,6 @@
 
     <div id="footer-placeholder"></div>
     <script src="/js/main.js"></script>
-    <script>
-        let currentAction = 'create';
-        const publicBtn = document.getElementById('publicBtn');
-        const privateBtn = document.getElementById('privateBtn');
-        const privateModal = document.getElementById('privateModal');
-        const createBtn = document.getElementById('createBtn');
-        const joinBtn = document.getElementById('joinBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const confirmBtn = document.getElementById('confirmBtn');
-        const createForm = document.getElementById('createForm');
-        const joinForm = document.getElementById('joinForm');
-
-        // Sala Pública
-        publicBtn.addEventListener('click', () => {
-            const roomId = 'public-' + Date.now();
-            window.location.href = `/html/practica3.html?room=${roomId}&type=public`;
-        });
-
-        // Abrir Modal Privada
-        privateBtn.addEventListener('click', () => {
-            privateModal.classList.add('active');
-            currentAction = 'create';
-            updateUI();
-        });
-
-        // Cambiar entre Crear y Unirse
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentAction = e.target.dataset.action;
-                updateUI();
-            });
-        });
-
-        function updateUI() {
-            if (currentAction === 'create') {
-                createForm.classList.add('active');
-                joinForm.classList.remove('active');
-                confirmBtn.textContent = 'Crear Sala';
-            } else {
-                createForm.classList.remove('active');
-                joinForm.classList.add('active');
-                confirmBtn.textContent = 'Unirse';
-            }
-        }
-
-        // Confirmar
-        confirmBtn.addEventListener('click', () => {
-            if (currentAction === 'create') {
-                const roomName = document.getElementById('roomNameInput').value.trim();
-                const errorDiv = document.getElementById('createError');
-
-                if (!roomName) {
-                    errorDiv.textContent = 'Ingresa un nombre para la sala';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                if (roomName.length < 3) {
-                    errorDiv.textContent = 'Mínimo 3 caracteres';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                if (!/^[a-zA-Z0-9-_]+$/.test(roomName)) {
-                    errorDiv.textContent = 'Solo letras, números, guiones';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-
-                window.location.href = `/html/practica3.html?room=${roomName}&type=private`;
-            } else {
-                const roomCode = document.getElementById('roomCodeInput').value.trim();
-                const errorDiv = document.getElementById('joinError');
-
-                if (!roomCode) {
-                    errorDiv.textContent = 'Ingresa el código de la sala';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-
-                window.location.href = `/html/practica3.html?room=${roomCode}&type=private`;
-            }
-        });
-
-        // Cancelar
-        cancelBtn.addEventListener('click', () => {
-            privateModal.classList.remove('active');
-            document.getElementById('roomNameInput').value = '';
-            document.getElementById('roomCodeInput').value = '';
-            document.getElementById('createError').style.display = 'none';
-            document.getElementById('joinError').style.display = 'none';
-        });
-
-        // Enter en inputs
-        document.getElementById('roomNameInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') confirmBtn.click();
-        });
-
-        document.getElementById('roomCodeInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') confirmBtn.click();
-        });
-
-        // Cerrar modal al clickear fuera
-        privateModal.addEventListener('click', (e) => {
-            if (e.target === privateModal) {
-                cancelBtn.click();
-            }
-        });
-    </script>
+    <script src="/js/sala-selector.js"></script>
 </body>
 </html>
