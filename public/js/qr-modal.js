@@ -34,7 +34,7 @@
         // Construir URL para que otros se unan a la sala
         const protocol = window.location.protocol;
         const host = window.location.host;
-        const joinUrl = `${protocol}//${host}/html/practica3.html?room=${window.roomId}`;
+        const joinUrl = `${protocol}//${host}/html/remote.html?room=${window.roomId}`;
 
         // Mostrar room name
         if (roomNameDisplay) {

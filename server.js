@@ -149,6 +149,37 @@ io.on('connection', (socket) => {
     emitToUser(roomId, to, 'receive-ice-candidate', { from: socket.userId, candidate });
   });
 
+  // Reenvio de preguntas y respuestas del quiz cuando no hay DataChannel disponible
+  socket.on('question-start', (data) => {
+    const roomId = socket.roomId;
+    console.log(`[QUIZ] Pregunta enviada por ${socket.userId} en sala ${roomId}`);
+    socket.to(roomId).emit('question-start', {
+      ...data,
+      roomId,
+      fromUserId: socket.userId
+    });
+  });
+
+  socket.on('question-answer', (data) => {
+    const roomId = socket.roomId;
+    console.log(`[QUIZ] Respuesta de ${socket.userId} en sala ${roomId}`);
+    socket.to(roomId).emit('question-answer', {
+      ...data,
+      roomId,
+      fromUserId: socket.userId
+    });
+  });
+
+  socket.on('question-result', (data) => {
+    const roomId = socket.roomId;
+    console.log(`[QUIZ] Resultado de ${socket.userId} en sala ${roomId}`);
+    socket.to(roomId).emit('question-result', {
+      ...data,
+      roomId,
+      fromUserId: socket.userId
+    });
+  });
+
   // Recibir y reenviar MENSAJES DE CHAT
   socket.on('send-chat-message', (data) => {
     const roomId = socket.roomId;

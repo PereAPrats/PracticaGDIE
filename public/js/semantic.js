@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let quizLanzado = false;
     let cueActualKey = null;
     let feedbackTimer = null;
+    let quizCountdownTimer = null;
+
+    const hasRemoteQuizBridge = () => {
+        return !!(window.quizBridge && typeof window.quizBridge.askQuestion === 'function');
+    };
 
     const PLACEHOLDERS = {
         es: {
@@ -222,12 +227,215 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function aplicarRespuestaQuiz(seleccion, quiz, reinicio) {
+        stopQuizCountdown();
+        overlay.style.display = 'none';
+        quizContent.classList.remove('quiz-waiting-state');
+        const accion = resolverAccionRespuesta(quiz, seleccion);
+        const questionId = quiz.__questionId || null;
+
+        if (accion.tipo === 'repeat') {
+            mostrarFeedback('Respuesta incorrecta. Repitiendo escena...');
+            quizLanzado = false;
+            video.currentTime = reinicio;
+            video.play();
+
+            if (questionId && window.quizBridge && typeof window.quizBridge.sendQuestionResult === 'function') {
+                window.quizBridge.sendQuestionResult({
+                    questionId,
+                    selectedIndex: seleccion,
+                    outcome: 'repeat'
+                });
+            }
+
+            return;
+        }
+
+        if (accion.tipo === 'goto') {
+            mostrarFeedback('Saltando al siguiente capitulo...');
+            quizLanzado = false;
+            cueActualKey = null;
+            video.currentTime = accion.destino;
+            video.play();
+
+            if (questionId && window.quizBridge && typeof window.quizBridge.sendQuestionResult === 'function') {
+                window.quizBridge.sendQuestionResult({
+                    questionId,
+                    selectedIndex: seleccion,
+                    outcome: 'goto',
+                    destination: accion.destino
+                });
+            }
+
+            return;
+        }
+
+        if (Number.isInteger(quiz.correcta)) {
+            mostrarFeedback(seleccion === quiz.correcta ? 'Correcto!' : 'Continuando...');
+        }
+
+        if (questionId && window.quizBridge && typeof window.quizBridge.sendQuestionResult === 'function') {
+            window.quizBridge.sendQuestionResult({
+                questionId,
+                selectedIndex: seleccion,
+                outcome: 'continue'
+            });
+        }
+
+        video.play();
+    }
+
+    function handleQuizTimeout(quiz, restartTime) {
+        stopQuizCountdown();
+        overlay.style.display = 'none';
+        quizContent.classList.remove('quiz-waiting-state');
+
+        mostrarFeedback('Se acabó el tiempo. Repitiendo capítulo...');
+        quizLanzado = false;
+        cueActualKey = null;
+        video.currentTime = restartTime;
+        video.play();
+
+        if (quiz?.__questionId && window.quizBridge && typeof window.quizBridge.sendQuestionResult === 'function') {
+            window.quizBridge.sendQuestionResult({
+                questionId: quiz.__questionId,
+                selectedIndex: null,
+                outcome: 'timeout'
+            });
+        }
+    }
+
+    function handleQuizTie(quiz, restartTime) {
+        stopQuizCountdown();
+        overlay.style.display = 'none';
+        quizContent.classList.remove('quiz-waiting-state');
+
+        mostrarFeedback('Empate. Repitiendo capitulo...');
+        quizLanzado = false;
+        cueActualKey = null;
+        video.currentTime = restartTime;
+        video.play();
+
+        if (quiz?.__questionId && window.quizBridge && typeof window.quizBridge.sendQuestionResult === 'function') {
+            window.quizBridge.sendQuestionResult({
+                questionId: quiz.__questionId,
+                selectedIndex: null,
+                outcome: 'repeat',
+                reason: 'tie'
+            });
+        }
+    }
+
+    function startQuizCountdown(timeoutMs) {
+        stopQuizCountdown();
+
+        const countdownValue = Math.max(1, Math.ceil((Number(timeoutMs) || 0) / 1000));
+        const countdownElement = document.getElementById('quizCountdownValue');
+        if (!countdownElement) {
+            return;
+        }
+
+        let remaining = countdownValue;
+        countdownElement.textContent = `${remaining}s`;
+
+        quizCountdownTimer = window.setInterval(() => {
+            remaining -= 1;
+            countdownElement.textContent = `${Math.max(0, remaining)}s`;
+
+            if (remaining <= 0) {
+                stopQuizCountdown();
+            }
+        }, 1000);
+    }
+
+    function stopQuizCountdown() {
+        if (quizCountdownTimer) {
+            clearInterval(quizCountdownTimer);
+            quizCountdownTimer = null;
+        }
+    }
+
     // Mostramos una pregunta del pool al final del cue activo y pausamos reproducción.
     function mostrarQuizEnVideo(pool, restartTime) {
         const quiz = pool[Math.floor(Math.random() * pool.length)];
         if (!quiz || !Array.isArray(quiz.opciones) || quiz.opciones.length === 0) return;
 
+        if (hasRemoteQuizBridge()) {
+            overlay.style.display = 'flex';
+            quizContent.classList.add('quiz-waiting-state');
+            quizContent.innerHTML = `
+                <div class="quiz-waiting-badge">Turno de contestar</div>
+                <h2 class="quiz-title">${quiz.pregunta}</h2>
+                <p class="quiz-waiting-copy">Contesta desde el móvil para que el vídeo continúe.</p>
+                <div class="quiz-countdown">Tiempo restante: <span id="quizCountdownValue">20s</span></div>
+            `;
+            mostrarFeedback('Pregunta enviada al móvil. Esperando respuesta...');
+
+            const questionId = `quiz_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+            quiz.__questionId = questionId;
+            startQuizCountdown(20000);
+
+            // Manejo para resolver la pregunta tan pronto como llegue el resultado
+            // desde signaling (DataChannel o Socket.IO). Evitamos procesarlo dos veces
+            // usando la marca `handled` y removiendo el listener tras uso.
+            let handled = false;
+            const onQuestionResult = (ev) => {
+                try {
+                    const detail = ev && ev.detail ? ev.detail : null;
+                    if (!detail || detail.questionId !== questionId) return;
+
+                    if (handled) return;
+                    handled = true;
+                    // Detener contador y aplicar resultado
+                    stopQuizCountdown();
+                    overlay.style.display = 'none';
+                    quizContent.classList.remove('quiz-waiting-state');
+
+                    const sel = Number.isInteger(detail.selectedIndex) ? detail.selectedIndex : null;
+                    if (detail && detail.reason === 'tie') {
+                        handleQuizTie(quiz, restartTime);
+                    } else if (Number.isInteger(sel)) {
+                        aplicarRespuestaQuiz(sel, quiz, restartTime);
+                    } else {
+                        handleQuizTimeout(quiz, restartTime);
+                    }
+                } finally {
+                    window.removeEventListener('question-result', onQuestionResult);
+                }
+            };
+
+            window.addEventListener('question-result', onQuestionResult);
+
+            window.quizBridge.askQuestion({
+                questionId,
+                quiz,
+                restartTime,
+                timeoutMs: 20000
+            }).then((seleccion) => {
+                if (handled) return;
+                handled = true;
+                if (Number.isInteger(seleccion)) {
+                    aplicarRespuestaQuiz(seleccion, quiz, restartTime);
+                    return;
+                }
+
+                handleQuizTimeout(quiz, restartTime);
+            }).catch((error) => {
+                if (handled) return;
+                handled = true;
+                console.warn('Error en la pregunta remota:', error);
+                handleQuizTimeout(quiz, restartTime);
+            });
+
+            return;
+        }
+
+        mostrarQuizEnVideoLocal(quiz, restartTime);
+    }
+
+    function mostrarQuizEnVideoLocal(quiz, restartTime) {
         overlay.style.display = 'flex'; 
+        quizContent.classList.remove('quiz-waiting-state');
         quizContent.innerHTML = `
             <h2 class="quiz-title">${quiz.pregunta}</h2>
             <div class="quiz-options">
@@ -312,31 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Definición global para los botones
     window.responder = (seleccion, quiz, reinicio) => {
-        overlay.style.display = 'none';
-        const accion = resolverAccionRespuesta(quiz, seleccion);
-
-        if (accion.tipo === 'repeat') {
-            mostrarFeedback('Respuesta incorrecta. Repitiendo escena...');
-            quizLanzado = false;
-            video.currentTime = reinicio;
-            video.play();
-            return;
-        }
-
-        if (accion.tipo === 'goto') {
-            mostrarFeedback('Saltando al siguiente capitulo...');
-            quizLanzado = false;
-            cueActualKey = null;
-            video.currentTime = accion.destino;
-            video.play();
-            return;
-        }
-
-        if (Number.isInteger(quiz.correcta)) {
-            mostrarFeedback(seleccion === quiz.correcta ? 'Correcto!' : 'Continuando...');
-        }
-
-        video.play();
+        aplicarRespuestaQuiz(seleccion, quiz, reinicio);
     };
 
     function actualizarMapa(roomId) {

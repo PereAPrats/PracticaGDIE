@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Quiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/specific.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <main style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; background:linear-gradient(180deg,#10131a,#1b2230); color:#fff;">
+        <section style="width:100%; max-width:560px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:20px; box-shadow:0 20px 60px rgba(0,0,0,0.35);">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:16px;">
+                <div>
+                    <h1 style="margin:0; font-size:1.4rem;">Pregunta remota</h1>
+                    <p id="remoteRoomLabel" style="margin:4px 0 0; opacity:0.75; font-size:0.95rem;">Sala: ...</p>
+                </div>
+                <div id="connectionState" style="font-size:0.9rem; padding:8px 10px; border-radius:999px; background:rgba(255,255,255,0.1);">Conectando...</div>
+            </div>
+
+            <div id="waitingView" style="padding:24px 0; text-align:center; opacity:0.95;">
+                <p style="margin:0 0 8px; font-weight:600;">Conectado y listo</p>
+                <p style="margin:0; font-size:0.95rem; opacity:0.9;">Mantén esta página abierta. Cuando el vídeo lance una pregunta, podrá contestarla desde aquí.</p>
+            </div>
+
+            <div id="questionView" style="display:none;">
+                <div id="questionText" style="font-size:1.2rem; line-height:1.4; margin-bottom:18px; font-weight:700;"></div>
+                <div id="answerGrid" style="display:grid; gap:12px;"></div>
+            </div>
+
+            <div id="resultView" style="display:none; margin-top:18px; padding:14px; border-radius:14px; background:rgba(0,0,0,0.18);">
+                <strong id="resultTitle">Resultado</strong>
+                <div id="resultText" style="margin-top:6px; opacity:0.9;"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/signaling-init.js"></script>
+    <script src="/js/remote-init.js"></script>
+</body>
+</html>
