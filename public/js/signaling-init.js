@@ -21,8 +21,6 @@
             this.socket = socket;
             this.userId = userIdValue;
             this.roomId = roomIdValue;
-            this.localStream = null;
-            this.localStreamPromise = null;
             this.peerConnections = new Map();
             this.dataChannels = new Map();
             this.remoteUserIds = new Set();
@@ -37,10 +35,6 @@
         setupBeforeUnload() {
             window.addEventListener('beforeunload', () => {
                 this.closeAllPeerConnections();
-                if (this.localStream) {
-                    // Apaga camara y microfono al cerrar la pagina para liberar el dispositivo.
-                    this.localStream.getTracks().forEach(track => track.stop());
-                }
             });
         }
 
@@ -51,8 +45,6 @@
                 this.socket.emit('join-room', this.roomId, this.userId);
 
                 try {
-                    // Captura de camara/microfono desactivada por peticion del usuario.
-                    // await this.ensureLocalStream();
                     this.updateStatus('Camara y microfono desactivados en esta version.');
                 } catch (error) {
                     // Si el usuario bloquea permisos, la negociacion WebRTC no podra enviar medios.
@@ -279,7 +271,6 @@
             const questionId = questionPayload.questionId || `question_${Date.now()}_${++this.questionSequence}`;
             const timeoutMs = Number.isFinite(questionPayload.timeoutMs) ? questionPayload.timeoutMs : 15000;
             let resolveSession;
-            let rejectSession;
 
             const session = {
                 questionId,
@@ -287,21 +278,17 @@
                 restartTime: questionPayload.restartTime,
                 expectedUsers,
                 votesByUser: new Map(),
-                voteOrder: [],
                 timeoutMs,
                 timerId: null,
                 promise: null,
-                resolve: null,
-                reject: null
+                resolve: null
             };
 
             session.promise = new Promise((resolve, reject) => {
                 resolveSession = resolve;
-                rejectSession = reject;
             });
 
             session.resolve = resolveSession;
-            session.reject = rejectSession;
             this.activeQuestionSession = session;
             this.updateStatus('Pregunta enviada al móvil. Esperando respuesta...');
 
@@ -344,9 +331,6 @@
             }
 
             session.votesByUser.set(userId, selectedIndex);
-            if (!session.voteOrder.includes(userId)) {
-                session.voteOrder.push(userId);
-            }
 
             this.updateStatus(`Respuesta recibida de ${userId}. Validando mayoría...`);
 
@@ -468,41 +452,6 @@
             }
         }
 
-        async ensureLocalStream() {
-            // Captura de medios desactivada: no se solicita getUserMedia.
-            return null;
-
-            /*
-            if (this.localStream) {
-                return this.localStream;
-            }
-
-            if (this.localStreamPromise) {
-                return this.localStreamPromise;
-            }
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error('getUserMedia no disponible');
-            }
-
-            // Captura los medios locales del dispositivo (camara + microfono).
-            // Este stream se reutiliza en toda la sesion para no pedir permisos varias veces.
-            this.localStreamPromise = navigator.mediaDevices.getUserMedia({
-                audio: true,
-                video: true
-            }).then((stream) => {
-                this.localStream = stream;
-
-                return stream;
-            }).catch((error) => {
-                this.localStreamPromise = null;
-                throw error;
-            });
-
-            return this.localStreamPromise;
-            */
-        }
-
         async createOffer(remoteUserId) {
             if (this.peerConnections.has(remoteUserId)) {
                 return;
@@ -564,20 +513,12 @@
                 return peerConnection;
             }
 
-            // Captura local desactivada (sin camara/microfono).
-            // await this.ensureLocalStream();
-
             peerConnection = new RTCPeerConnection({
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' }
                 ]
             });
-
-            // Envio de pistas locales desactivado por peticion (microfono/camara ocultos).
-            // this.localStream.getTracks().forEach(track => {
-            //     peerConnection.addTrack(track, this.localStream);
-            // });
 
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {

@@ -10,7 +10,6 @@
     const resultText = document.getElementById('resultText');
 
     let activeQuestionId = null;
-    let activeQuestion = null;
     let handledResultQuestionId = null;
     let timeoutTimer = null;
 
@@ -130,7 +129,6 @@
         }
 
         activeQuestionId = detail.questionId;
-        activeQuestion = detail;
         handledResultQuestionId = null;
         showQuestion(quiz);
         setConnectionText('Pregunta activa');
@@ -181,7 +179,6 @@
         // inmediatamente para aceptar nuevas preguntas.
         stopTimeoutTimer();
         activeQuestionId = null;
-        activeQuestion = null;
 
         const selectedIndex = Number.isInteger(detail.selectedIndex)
             ? detail.selectedIndex

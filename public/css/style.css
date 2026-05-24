@@ -441,23 +441,6 @@ body {
     }
 }
 
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-}
-
-.controls button {
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.controls input[type="range"] {
-    cursor: pointer;
-}
-
 .status {
     margin-top: 10px;
     font-size: 0.9rem;

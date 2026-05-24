@@ -19,9 +19,21 @@
                 <div id="connectionState" style="font-size:0.9rem; padding:8px 10px; border-radius:999px; background:rgba(255,255,255,0.1);">Conectando...</div>
             </div>
 
-            <div id="waitingView" style="padding:24px 0; text-align:center; opacity:0.95;">
-                <p style="margin:0 0 8px; font-weight:600;">Conectado y listo</p>
-                <p style="margin:0; font-size:0.95rem; opacity:0.9;">Mantén esta página abierta. Cuando el vídeo lance una pregunta, podrá contestarla desde aquí.</p>
+            
+
+            <!-- Chat para móviles -->
+            <div id="chatPanel" style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:1rem;">Chat de la sala</strong>
+                    <small id="chatUsersCount" style="opacity:0.8;">1 conectado</small>
+                </div>
+
+                <div id="chatMessages" style="height:180px; overflow:auto; padding:10px; background:rgba(0,0,0,0.08); border-radius:8px; border:1px solid rgba(255,255,255,0.03);"></div>
+
+                <div style="display:flex; gap:8px;">
+                    <input id="chatInput" type="text" placeholder="Escribe un mensaje..." style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff;" />
+                    <button id="sendMsgBtn" type="button" style="padding:10px 14px; border-radius:10px; background:#2f8f4a; border:none; color:#fff; font-weight:700;">Enviar</button>
+                </div>
             </div>
 
             <div id="questionView" style="display:none;">
@@ -37,6 +49,7 @@
     </main>
 
     <script src="/js/signaling-init.js"></script>
+    <script src="/js/chat.js"></script>
     <script src="/js/remote-init.js"></script>
 </body>
 </html>
