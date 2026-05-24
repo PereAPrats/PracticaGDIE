@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
+const fs = require('fs/promises');
 const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
@@ -32,7 +33,50 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ========== SIGNALING ==========
-const rooms = {}; // { roomId: { users: {userId: socket}, offers: {} } }
+const MAX_CHAT_HISTORY = 100;
+const rooms = {}; // { roomId: { users: {userId: socket[]}, offers: {}, messages: [] } }
+const CHAT_HISTORY_FILE = path.join(__dirname, 'data', 'chat-history.json');
+
+async function loadChatHistory() {
+  try {
+    const raw = await fs.readFile(CHAT_HISTORY_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+
+    if (!parsed || typeof parsed !== 'object') {
+      return;
+    }
+
+    for (const [roomId, messages] of Object.entries(parsed)) {
+      if (Array.isArray(messages)) {
+        rooms[roomId] = rooms[roomId] || { users: {}, offers: {}, messages: [] };
+        rooms[roomId].messages = messages.slice(-MAX_CHAT_HISTORY);
+      }
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      console.warn('[CHAT] No se pudo cargar el historial de chat:', error.message);
+    }
+  }
+}
+
+async function saveChatHistory() {
+  try {
+    const payload = {};
+
+    for (const [roomId, room] of Object.entries(rooms)) {
+      if (Array.isArray(room.messages) && room.messages.length > 0) {
+        payload[roomId] = room.messages.slice(-MAX_CHAT_HISTORY);
+      }
+    }
+
+    await fs.mkdir(path.dirname(CHAT_HISTORY_FILE), { recursive: true });
+    await fs.writeFile(CHAT_HISTORY_FILE, JSON.stringify(payload, null, 2), 'utf8');
+  } catch (error) {
+    console.warn('[CHAT] No se pudo guardar el historial de chat:', error.message);
+  }
+}
+
+const chatHistoryReady = loadChatHistory();
 
 function emitToUser(roomId, userId, eventName, payload) {
   const room = rooms[roomId];
@@ -56,7 +100,7 @@ io.on('connection', (socket) => {
     socket.roomId = roomId;
 
     if (!rooms[roomId]) {
-      rooms[roomId] = { users: {}, offers: {} };
+      rooms[roomId] = { users: {}, offers: {}, messages: [] };
     }
 
     // Almacenar MÚLTIPLES sockets por usuario (un user puede tener 2+ dispositivos)
@@ -76,6 +120,9 @@ io.on('connection', (socket) => {
     
     // Enviar lista de usuarios existentes al nuevo usuario
     socket.emit('users-in-room', Object.keys(rooms[roomId].users).filter(u => u !== userId));
+
+    // Enviar historial de chat al nuevo usuario para que vea los mensajes previos
+    socket.emit('chat-history', rooms[roomId].messages);
   });
 
   // Recibir y reenviar OFFER
@@ -107,12 +154,22 @@ io.on('connection', (socket) => {
     const roomId = socket.roomId;
     const userId = socket.userId;
     console.log(`[CHAT] Mensaje de ${userId}: ${data.message.substring(0, 50)}...`);
-    // Enviar a todos en la sala (incluyendo al remitente)
-    io.to(roomId).emit('receive-chat-message', {
+    const chatMessage = {
       userId: userId,
       message: data.message,
       timestamp: data.timestamp
-    });
+    };
+
+    if (rooms[roomId]) {
+      rooms[roomId].messages.push(chatMessage);
+      if (rooms[roomId].messages.length > MAX_CHAT_HISTORY) {
+        rooms[roomId].messages = rooms[roomId].messages.slice(-MAX_CHAT_HISTORY);
+      }
+      saveChatHistory();
+    }
+
+    // Enviar a todos en la sala (incluyendo al remitente)
+    io.to(roomId).emit('receive-chat-message', chatMessage);
   });
 
   // Desconexión
@@ -139,9 +196,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('my-connection-count-changed', { userId, count: remainingConnections });
       }
       
-      if (Object.keys(rooms[roomId].users).length === 0) {
-        delete rooms[roomId];
-      }
+      // Mantenemos la sala en memoria aunque quede vacía para conservar el historial.
     }
   });
 });
@@ -156,8 +211,10 @@ app.post('/api/telemetry', (req, res) => {
   res.status(204).end();
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`--- SERVIDOR SIGNALING DESPLEGADO ---`);
-  console.log(`URL: http://localhost:${PORT}`);
-  console.log(`Signaling: ws://localhost:${PORT}`);
+chatHistoryReady.then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`--- SERVIDOR SIGNALING DESPLEGADO ---`);
+    console.log(`URL: http://localhost:${PORT}`);
+    console.log(`Signaling: ws://localhost:${PORT}`);
+  });
 });

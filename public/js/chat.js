@@ -61,6 +61,22 @@
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     }
 
+    function renderChatHistory(messages) {
+        if (!Array.isArray(messages) || messages.length === 0) {
+            return;
+        }
+
+        messages.forEach((message) => {
+            if (!message || typeof message !== 'object') {
+                return;
+            }
+
+            addMessageToChat(message.userId || 'SISTEMA', message.message || '', {
+                senderId: message.userId || null
+            });
+        });
+    }
+
     /**
      * Escapa caracteres HTML para evitar inyecciones
      */
@@ -104,6 +120,11 @@
     if (window.socket) {
         window.socket.on('users-in-room', (users) => {
             updateUsersCount((users ? users.length : 0) + 1);
+        });
+
+        window.socket.on('chat-history', (messages) => {
+            chatMessagesDiv.innerHTML = '';
+            renderChatHistory(messages);
         });
 
         window.socket.on('receive-chat-message', (data) => {

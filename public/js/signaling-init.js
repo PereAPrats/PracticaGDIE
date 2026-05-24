@@ -1,6 +1,6 @@
 /**
  * signaling-init.js - Inicializacion de Socket.IO y WebRTC
- * Unifica la conexion de signaling, salas, offer/answer/ICE y video local/remoto.
+ * Unifica la conexion de signaling, salas, offer/answer/ICE y chat.
  */
 
 (function () {
@@ -25,72 +25,11 @@
             this.localStreamPromise = null;
             this.peerConnections = new Map();
             this.remoteUserIds = new Set();
-            this.localVideo = null;
-            this.remoteVideo = null;
             this.statusElement = document.getElementById('videoStatus');
 
-            this.ensureVideoElements();
             this.bindSocketEvents();
             this.setupBeforeUnload();
         }
-
-        /*ensureVideoElements() {
-            this.localVideo = document.getElementById('localVideo');
-            this.remoteVideo = document.getElementById('remoteVideo');
-
-            if (this.localVideo && this.remoteVideo) {
-                return;
-            }
-            const placeholder = document.getElementById('webrtcPanelPlaceholder');
-
-            if (placeholder) {
-                // Load partial asynchronously; non-blocking fallback to dynamic creation
-                fetch('/html/partials/webrtc-panel.html').then(resp => {
-                    if (!resp.ok) throw new Error('No se pudo cargar partial');
-                    return resp.text();
-                }).then(html => {
-                    placeholder.innerHTML = html;
-                    this.localVideo = document.getElementById('localVideo');
-                    this.remoteVideo = document.getElementById('remoteVideo');
-                }).catch(err => {
-                    console.warn('[SIGNALING] No se pudo cargar partial webrtc-panel, usando fallback dinámico', err);
-                    this._createDynamicPanel();
-                });
-            } else {
-                this._createDynamicPanel();
-            }
-        }
-
-        _createDynamicPanel() {
-            const container = document.querySelector('.container-custom-p3') || document.body;
-            const sidebar = document.querySelector('.sidebar-p3-chat');
-            const panel = document.createElement('section');
-            panel.id = 'webrtcPanel';
-            panel.style.display = 'grid';
-            panel.style.gridTemplateColumns = 'repeat(auto-fit, minmax(240px, 1fr))';
-            panel.style.gap = '12px';
-            panel.style.margin = '16px 0';
-
-                        panel.innerHTML = `
-                                <article style="background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:12px;">
-                                    <h3 style="margin:0 0 8px;">Video local</h3>
-                                    <video id="localVideo" autoplay muted playsinline style="width:100%;background:#111;border-radius:8px;display:block;"></video>
-                                </article>
-                                <article style="background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:12px;">
-                                    <h3 style="margin:0 0 8px;">Video remoto</h3>
-                                    <video id="remoteVideo" autoplay playsinline style="width:100%;background:#111;border-radius:8px;display:block;"></video>
-                                </article>
-                        `;
-
-            if (sidebar && sidebar.parentNode === container) {
-                container.insertBefore(panel, sidebar);
-            } else {
-                container.appendChild(panel);
-            }
-
-            this.localVideo = document.getElementById('localVideo');
-            this.remoteVideo = document.getElementById('remoteVideo');
-        }*/
 
         setupBeforeUnload() {
             window.addEventListener('beforeunload', () => {
@@ -230,12 +169,6 @@
             }).then((stream) => {
                 this.localStream = stream;
 
-                // Muestra la previsualizacion local (lo que capta tu propia camara/mic).
-                if (this.localVideo) {
-                    this.localVideo.srcObject = stream;
-                    this.localVideo.play().catch(() => {});
-                }
-
                 return stream;
             }).catch((error) => {
                 this.localStreamPromise = null;
@@ -325,10 +258,8 @@
 
             peerConnection.ontrack = (event) => {
                 const stream = event.streams && event.streams[0];
-                // Aqui llega el stream remoto (camara/microfono del otro usuario).
-                if (stream && this.remoteVideo) {
-                    this.remoteVideo.srcObject = stream;
-                    this.remoteVideo.play().catch(() => {});
+                if (stream) {
+                    console.log('[WEBRTC] Stream remoto recibido de', remoteUserId);
                 }
             };
 
@@ -348,10 +279,6 @@
 
             peerConnection.close();
             this.peerConnections.delete(remoteUserId);
-
-            if (this.remoteVideo) {
-                this.remoteVideo.srcObject = null;
-            }
         }
 
         closeAllPeerConnections() {
@@ -369,12 +296,6 @@
     const socket = io();
     window.socket = socket;
     window.webrtcManager = new WebRTCManager(socket, userId, roomId);
-
-    // Oculta los elementos de video local/remoto si existen en el DOM.
-    const localVideoEl = document.getElementById('localVideo');
-    const remoteVideoEl = document.getElementById('remoteVideo');
-    if (localVideoEl) localVideoEl.style.display = 'none';
-    if (remoteVideoEl) remoteVideoEl.style.display = 'none';
 
     console.log(`[SIGNALING] Inicializando con userId=${userId}, roomId=${roomId}`);
 })();
