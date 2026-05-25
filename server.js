@@ -83,15 +83,6 @@ const HUGGINGFACE_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN || process.env.H
 const HUGGINGFACE_MODEL = process.env.HUGGINGFACE_MODEL || 'unitary/multilingual-toxic-xlm-roberta';
 const HUGGINGFACE_API_BASE = process.env.HUGGINGFACE_API_BASE || 'https://router.huggingface.co/hf-inference/models';
 const TOXIC_LABELS = new Set(['toxic', 'toxicity', 'insult', 'threat', 'hate speech', 'harassment', 'profanity', 'abuse', 'offensive', 'off', 'offensive_language', 'abusive']);
-const SAFE_PRAISE_PHRASES = new Set([
-  'maquina', 'maquinon', 'crack', 'genio', 'genia', 'maestro', 'maestra',
-  'rey', 'reina', 'fenomeno', 'fenomena', 'pro', 'figura', 'artista'
-]);
-const SAFE_CONTEXT_WORDS = new Set([
-  'pista', 'cuadro', 'acertijo', 'llave', 'sala', 'codigo', 'numero', 'número',
-  'mapa', 'panel', 'caja', 'mira', 'mirar', 'creo', 'quizas', 'quizá', 'tal vez',
-  'debajo', 'arriba', 'izquierda', 'derecha', 'esquina'
-]);
 
 function extractHFClassification(payload) {
   if (!payload) {
@@ -179,34 +170,12 @@ async function moderateWithHuggingFace(text) {
   }
 }
 
-function moderateWithRegex(text) {
-  const bad = [
-    'puta', 'mierda', 'joder', 'coño', 'idiota', 'gilipollas',
-    'tonto', 'tonta', 'imbecil', 'imbecil', 'capullo', 'subnormal',
-    'estupido', 'estupida', 'idiota', 'bobo', 'boba', 'pringado', 'pringada'
-  ];
-  const lowered = normalizeForModeration(text);
-  for (const w of bad) if (lowered.includes(w)) return { flagged: true, reason: 'regex' };
-  return { flagged: false };
-}
-
-function normalizeForModeration(text) {
-  return String(text || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 async function moderateMessage(text) {
-  // Temporalmente: solo Hugging Face. Si falla, no bloqueamos con regex.
   if (HUGGINGFACE_API_TOKEN) {
     try {
       return await moderateWithHuggingFace(text);
     } catch (err) {
-      console.warn('[MOD] HuggingFace moderation failed, allowing message through temporarily:', err.message || err);
+      console.warn('[MOD] HuggingFace moderation failed, allowing message:', err.message || err);
       return { flagged: false, reason: 'hf-error' };
     }
   }
