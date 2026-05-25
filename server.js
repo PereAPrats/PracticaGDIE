@@ -1,3 +1,4 @@
+const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const http = require('http');
@@ -74,6 +75,143 @@ async function saveChatHistory() {
   } catch (error) {
     console.warn('[CHAT] No se pudo guardar el historial de chat:', error.message);
   }
+}
+
+// Moderation helpers
+const HUGGINGFACE_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN || process.env.HF_API_TOKEN || null;
+// Modelo multilingüe de toxicidad soportado por HF Inference API
+const HUGGINGFACE_MODEL = process.env.HUGGINGFACE_MODEL || 'unitary/multilingual-toxic-xlm-roberta';
+const HUGGINGFACE_API_BASE = process.env.HUGGINGFACE_API_BASE || 'https://router.huggingface.co/hf-inference/models';
+const TOXIC_LABELS = new Set(['toxic', 'toxicity', 'insult', 'threat', 'hate speech', 'harassment', 'profanity', 'abuse', 'offensive', 'off', 'offensive_language', 'abusive']);
+const SAFE_PRAISE_PHRASES = new Set([
+  'maquina', 'maquinon', 'crack', 'genio', 'genia', 'maestro', 'maestra',
+  'rey', 'reina', 'fenomeno', 'fenomena', 'pro', 'figura', 'artista'
+]);
+const SAFE_CONTEXT_WORDS = new Set([
+  'pista', 'cuadro', 'acertijo', 'llave', 'sala', 'codigo', 'numero', 'número',
+  'mapa', 'panel', 'caja', 'mira', 'mirar', 'creo', 'quizas', 'quizá', 'tal vez',
+  'debajo', 'arriba', 'izquierda', 'derecha', 'esquina'
+]);
+
+function extractHFClassification(payload) {
+  if (!payload) {
+    return null;
+  }
+
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const found = extractHFClassification(item);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  if (typeof payload === 'object') {
+    if (typeof payload.label === 'string' && payload.score !== undefined) {
+      return {
+        label: String(payload.label || '').toLowerCase().trim(),
+        score: Number(payload.score || 0)
+      };
+    }
+
+    if (Array.isArray(payload.labels) && Array.isArray(payload.scores)) {
+      return {
+        label: String(payload.labels[0] || '').toLowerCase().trim(),
+        score: Number(payload.scores[0] || 0)
+      };
+    }
+
+    if (typeof payload.prediction === 'string' && payload.probability !== undefined) {
+      return {
+        label: String(payload.prediction || '').toLowerCase().trim(),
+        score: Number(payload.probability || 0)
+      };
+    }
+  }
+
+  return null;
+}
+
+async function moderateWithHuggingFace(text) {
+  if (!HUGGINGFACE_API_TOKEN) throw new Error('no-token');
+  try {
+    const resp = await axios.post(
+      `${HUGGINGFACE_API_BASE}/${HUGGINGFACE_MODEL}`,
+      {
+        inputs: text,
+        options: {
+          wait_for_model: true
+        }
+      },
+      { headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` }, timeout: 6000 }
+    );
+
+    const data = resp.data;
+    const classification = extractHFClassification(data);
+
+    if (classification) {
+      const { label, score } = classification;
+      const isToxicLabel = label === 'toxic' || label.includes('toxic') || [...TOXIC_LABELS].some((token) => label.includes(token));
+
+      console.log(`[MOD][HF] label=${label} score=${score.toFixed(3)} text=${String(text).slice(0, 80)}`);
+
+      if (label === 'not_toxic' || label === 'neutral') {
+        return { flagged: false, reason: `hf:${label}`, score };
+      }
+
+      if (isToxicLabel && score >= 0.55) {
+        return { flagged: true, reason: `hf:${label}`, score };
+      }
+
+      return { flagged: false, reason: `hf:${label}`, score };
+    }
+
+    console.warn('[MOD][HF] Unexpected response shape:', JSON.stringify(data).slice(0, 240));
+    return { flagged: false, reason: 'hf-unparsed' };
+  } catch (err) {
+    // propagate special error for missing token
+    if (err.message && err.message.includes('401')) throw new Error('hf-auth');
+    if (err.response && err.response.status) {
+      console.warn('[MOD][HF] HTTP error:', err.response.status, err.response.data || '');
+    }
+    // timeout or other
+    throw err;
+  }
+}
+
+function moderateWithRegex(text) {
+  const bad = [
+    'puta', 'mierda', 'joder', 'coño', 'idiota', 'gilipollas',
+    'tonto', 'tonta', 'imbecil', 'imbecil', 'capullo', 'subnormal',
+    'estupido', 'estupida', 'idiota', 'bobo', 'boba', 'pringado', 'pringada'
+  ];
+  const lowered = normalizeForModeration(text);
+  for (const w of bad) if (lowered.includes(w)) return { flagged: true, reason: 'regex' };
+  return { flagged: false };
+}
+
+function normalizeForModeration(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function moderateMessage(text) {
+  // Temporalmente: solo Hugging Face. Si falla, no bloqueamos con regex.
+  if (HUGGINGFACE_API_TOKEN) {
+    try {
+      return await moderateWithHuggingFace(text);
+    } catch (err) {
+      console.warn('[MOD] HuggingFace moderation failed, allowing message through temporarily:', err.message || err);
+      return { flagged: false, reason: 'hf-error' };
+    }
+  }
+  console.warn('[MOD] No Hugging Face token configured; moderation disabled temporarily');
+  return { flagged: false, reason: 'no-hf-token' };
 }
 
 const chatHistoryReady = loadChatHistory();
@@ -184,23 +322,42 @@ io.on('connection', (socket) => {
   socket.on('send-chat-message', (data) => {
     const roomId = socket.roomId;
     const userId = socket.userId;
-    console.log(`[CHAT] Mensaje de ${userId}: ${data.message.substring(0, 50)}...`);
-    const chatMessage = {
-      userId: userId,
-      message: data.message,
-      timestamp: data.timestamp
-    };
+    (async () => {
+      console.log(`[CHAT] Mensaje de ${userId}: ${String(data.message).substring(0, 50)}...`);
+      let text = data.message || '';
 
-    if (rooms[roomId]) {
-      rooms[roomId].messages.push(chatMessage);
-      if (rooms[roomId].messages.length > MAX_CHAT_HISTORY) {
-        rooms[roomId].messages = rooms[roomId].messages.slice(-MAX_CHAT_HISTORY);
+      // Moderación (IA o regex)
+      try {
+        const mod = await moderateMessage(text);
+        if (mod && mod.flagged) {
+          console.log(`[MOD] Mensaje bloqueado por moderación en sala ${roomId} (reason=${mod.reason})`);
+          // Notificar al emisor
+          socket.emit('moderation-blocked', { reason: mod.reason });
+          // Replace text with placeholder
+          text = '[Mensaje ocultado por moderación]';
+        }
+      } catch (err) {
+        console.warn('[MOD] Error en moderación:', err.message || err);
       }
-      saveChatHistory();
-    }
 
-    // Enviar a todos en la sala (incluyendo al remitente)
-    io.to(roomId).emit('receive-chat-message', chatMessage);
+      const chatMessage = {
+        userId: userId,
+        message: text,
+        timestamp: data.timestamp,
+        moderated: text === '[Mensaje ocultado por moderación]'
+      };
+
+      if (rooms[roomId]) {
+        rooms[roomId].messages.push(chatMessage);
+        if (rooms[roomId].messages.length > MAX_CHAT_HISTORY) {
+          rooms[roomId].messages = rooms[roomId].messages.slice(-MAX_CHAT_HISTORY);
+        }
+        saveChatHistory();
+      }
+
+      // Enviar a todos en la sala (incluyendo al remitente)
+      io.to(roomId).emit('receive-chat-message', chatMessage);
+    })();
   });
 
   // Desconexión
