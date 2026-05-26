@@ -85,6 +85,19 @@ const HUGGINGFACE_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN || process.env.H
 const HUGGINGFACE_MODEL = process.env.HUGGINGFACE_MODEL || 'unitary/multilingual-toxic-xlm-roberta';
 const HUGGINGFACE_API_BASE = process.env.HUGGINGFACE_API_BASE || 'https://router.huggingface.co/hf-inference/models';
 const TOXIC_LABELS = new Set(['toxic', 'toxicity', 'insult', 'threat', 'hate speech', 'harassment', 'profanity', 'abuse', 'offensive', 'off', 'offensive_language', 'abusive']);
+let warnedMissingHfToken = false;
+const LOCAL_MODERATION_PATTERNS = [
+  /\bidiota\b/i,
+  /\best[úu]pido\b/i,
+  /\best[úu]pida\b/i,
+  /\bimb[eé]cil\b/i,
+  /\bgilipollas\b/i,
+  /\bpayaso\b/i,
+  /\bsubnormal\b/i,
+  /\bmierda\b/i,
+  /\bputa\b/i,
+  /\bhijo\s*de\s*puta\b/i
+];
 
 function extractHFClassification(payload) {
   if (!payload) {
@@ -181,8 +194,19 @@ async function moderateMessage(text) {
       return { flagged: false, reason: 'hf-error' };
     }
   }
-  console.warn('[MOD] No Hugging Face token configured; moderation disabled temporarily');
-  return { flagged: false, reason: 'no-hf-token' };
+  if (!warnedMissingHfToken) {
+    console.warn('[MOD] No Hugging Face token configured; using local moderation fallback');
+    warnedMissingHfToken = true;
+  }
+
+  const normalizedText = String(text || '').toLowerCase();
+  const matchedPattern = LOCAL_MODERATION_PATTERNS.find((pattern) => pattern.test(normalizedText));
+
+  if (matchedPattern) {
+    return { flagged: true, reason: 'local-rule', score: 1 };
+  }
+
+  return { flagged: false, reason: 'local-rule', score: 0 };
 }
 
 const chatHistoryReady = loadChatHistory();

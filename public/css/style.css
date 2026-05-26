@@ -191,6 +191,19 @@ body {
     border-radius: 5px;
 }
 
+.chat-panel{
+    background-color: #fdfdf5;
+    border: 2px solid var(--marron-oscuro);
+    color: var(--lila-texto);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    border-radius: 5px;
+}
+
 /* Alturas proporcionales basadas en tu dibujo */
 .item-video { height: 60vh; }
 .item-texto  { height: 20vh; }
