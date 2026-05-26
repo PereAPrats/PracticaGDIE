@@ -100,12 +100,9 @@
 .item-chat-vertical .chat-panel {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
     gap: 5px;
     flex: 1 1 auto;
     min-height: 0;
-    width: 100%;
     border: 1px solid var(--marron-oscuro);
     border-radius: 6px;
     background: #fffdf7;
@@ -119,20 +116,16 @@
     flex-direction: column;
     gap: 6px;
     min-height: 70px;
-    width: 100%;
 }
 
 .item-chat-vertical .chat-input-row {
     display: flex;
     gap: 8px;
     align-items: stretch;
-    width: 100%;
-    flex-wrap: nowrap;
 }
 
 .item-chat-vertical #chatInput {
-    flex: 1 1 auto;
-    min-width: 0;
+    flex: 1;
     border: 2px solid var(--marron-oscuro);
     border-radius: 5px;
     background: #fffdf7;
@@ -144,16 +137,14 @@
 }
 
 .item-chat-vertical .btn-marron-p3 {
-    flex: 0 0 auto;
-    min-width: 0;
+    min-width: 92px;
     border: 2px solid var(--marron-oscuro);
     border-radius: 5px;
     background: var(--marron-oscuro);
     color: var(--crema);
     font-weight: 700;
-    padding: 8px 12px;
+    padding: 10px 16px;
     font-size: 0.85rem;
-    white-space: nowrap;
     cursor: pointer;
 }
 
